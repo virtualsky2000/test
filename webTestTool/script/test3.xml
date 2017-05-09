@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+
+<script id="test" desc="テスト">
+
+	<action type="ie">
+
+		<login ref="login1" />
+
+		<selectMenu ref="menu_20A10" />
+
+		<test>
+			<!-- 異動履歴照会押下 -->
+			<click id="syukiKbn_IduRrkSyuki" />
+			<!-- 証券番号の入力 -->
+			<setText id="syknNo" value="1041056915" />
+			<!-- 送信ボタン押下 -->
+			<click id="send" />
+			<!-- ページロード完了まで待つ -->
+			<waitForPageLoad />
+			<!-- 頁の入力 -->
+			<setText id="pgSti" value="a" />
+			<!-- 送信ボタン押下 -->
+			<click id="send" />
+			<!-- ページロード完了まで待つ -->
+			<waitForPageLoad />
+		</test>
+
+	</action>
+
+</script>

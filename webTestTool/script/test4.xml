@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+
+<script desc="入金状況照会">
+
+	<action type="chrome">
+
+		<login url="http://10.13.50.97:81" usrid="3RD014" pwd="2222" />
+
+		<selectMenu menulayer="3" menuid="3_1_20A60" />
+
+	</action>
+
+</script>

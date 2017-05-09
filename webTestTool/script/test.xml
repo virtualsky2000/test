@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+
+<script id="test" desc="テスト">
+
+	<action type="chrome">
+
+		<login>
+			<!-- 開始URL -->
+			<start url="http://10.13.50.97:81/third/pages/agol01/div00/kys/com/v000/KYS001.xhtml" />
+			<!-- ユーザIDの入力 -->
+			<setText id="usrid" value="3RD014" />
+			<!-- パスワードの入力 -->
+			<setText id="pwd" value="2222" />
+			<!-- ログインボタン押下 -->
+			<click name="j_idt22" />
+			<!-- メニュー画面ページロード完了まで待つ -->
+			<waitForPageLoad title="★★業務選択★★｜共栄火災" />
+		</login>
+
+		<selectMenu>
+			<!-- メニューボタン押下 -->
+			<click id="1_1_20A10" />
+			<!-- 新たウィンドウ開く -->
+			<openWindow />
+			<!-- ページロード完了まで待つ -->
+			<waitForPageLoad />
+		</selectMenu>
+
+		<test>
+			<!-- 異動履歴照会押下 -->
+			<click id="syukiKbn_IduRrkSyuki" />
+			<!-- 証券番号の入力 -->
+			<setText id="syknNo" value="1041056915" />
+			<!-- 送信ボタン押下 -->
+			<click id="send" />
+			<!-- ページロード完了まで待つ -->
+			<waitForPageLoad />
+			<!-- 頁の入力 -->
+			<setText id="pgSti" value="a" />
+			<!-- 送信ボタン押下 -->
+			<click id="send" />
+			<!-- ページロード完了まで待つ -->
+			<waitForPageLoad />
+		</test>
+
+	</action>
+
+</script>

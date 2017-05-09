@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+
+<script desc="テスト">
+
+	<action>
+
+		<login url="http://10.13.50.97:81" usrid="3RD014" pwd="2222" />
+
+		<selectMenu layer="1" id="1_1_20A10" />
+
+		<sreachIduRrk syknNo="1041056915" />
+
+		<test>
+			<!-- 頁の入力 -->
+			<setText id="pgSti" value="a" />
+			<!-- 送信ボタン押下 -->
+			<click id="send" />
+			<!-- ページロード完了まで待つ -->
+			<waitForPageLoad />
+
+			<saveScreen filename="d:/test.jpg" />
+
+			<check msg="【 頁 】 半角数字で入力してください。" />
+		</test>
+
+	</action>
+
+</script>

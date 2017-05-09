@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+
+<script desc="共通スクリプト">
+
+	<action>
+
+		<!-- ログイン処理 -->
+		<login>
+			<!-- 開始URL -->
+			<start url="${url}/third/pages/agol01/div00/kys/com/v000/KYS001.xhtml" />
+			<!-- ユーザIDの入力 -->
+			<setText id="usrid" value="${usrid}" />
+			<!-- パスワードの入力 -->
+			<setText id="pwd" value="${pwd}" />
+			<!-- ログインボタン押下 -->
+			<click selector="button[type='submit']" />
+			<!-- メニュー画面ページロード完了まで待つ -->
+			<waitForPageLoad title="★★業務選択★★｜共栄火災" />
+		</login>
+
+		<!-- メニュー選択処理 -->
+		<selectMenu>
+			<!-- メニューlayer押下 -->
+			<click name="${layer}" />
+			<!-- メニューボタン押下 -->
+			<click id="${id}" />
+			<!-- 新たウィンドウ開く -->
+			<openWindow />
+			<!-- ページロード完了まで待つ -->
+			<waitForPageLoad />
+		</selectMenu>
+
+		<!-- 異動履歴照会処理 -->
+		<sreachIduRrk>
+			<!-- 異動履歴照会押下 -->
+			<click id="syukiKbn_IduRrkSyuki" />
+			<!-- 証券番号の入力 -->
+			<setText id="syknNo" value="${syknNo}" />
+			<!-- 送信ボタン押下 -->
+			<click id="send" />
+			<!-- ページロード完了まで待つ -->
+			<waitForPageLoad />
+		</sreachIduRrk>
+
+		<login id="login1">
+			<!-- 開始URL -->
+			<start url="http://10.13.50.97:81/third/pages/agol01/div00/kys/com/v000/KYS001.xhtml" />
+			<!-- ユーザIDの入力 -->
+			<setText id="usrid" value="3RD014" />
+			<!-- パスワードの入力 -->
+			<setText id="pwd" value="2222" />
+			<!-- ログインボタン押下 -->
+			<click selector="button[type='submit']" />
+			<!-- メニュー画面ページロード完了まで待つ -->
+			<waitForPageLoad title="★★業務選択★★｜共栄火災" />
+		</login>
+
+		<login id="login3">
+			<!-- 開始URL -->
+			<start url="http://10.13.50.97:83/third/pages/agol01/div00/kys/com/v000/KYS001.xhtml" />
+			<!-- ユーザIDの入力 -->
+			<setText id="usrid" value="3RD014" />
+			<!-- パスワードの入力 -->
+			<setText id="pwd" value="2222" />
+			<!-- ログインボタン押下 -->
+			<click selector="button[type='submit']" />
+			<!-- メニュー画面ページロード完了まで待つ -->
+			<waitForPageLoad title="★★業務選択★★｜共栄火災" />
+		</login>
+
+	</action>
+
+</script>
