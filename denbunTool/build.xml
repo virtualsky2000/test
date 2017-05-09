@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+
+<project basedir="." default="jar" name="debunTool">
+
+	<path id="lib">
+		<fileset dir="lib" includes="*.jar" />
+	</path>
+
+	<target name="clean">
+		<delete dir="classes" />
+		<delete dir="build" />
+		<mkdir dir="classes" />
+		<mkdir dir="build" />
+	</target>
+
+	<target name="build" depends="clean">
+		<javac debug="true" destdir="classes"
+			includeantruntime="false" includes="**/*.java" encoding="utf-8">
+			<src path="src" />
+			<classpath refid="lib" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="build">
+		<jar jarfile="build/debunTool.jar">
+			<fileset dir="classes" includes="**/*.class" />
+			<manifest>
+				<attribute name="Main-Class" value="denbunTool.MainForm" />
+				<attribute name="Class-Path" value="${lib}"/>
+			</manifest>
+		</jar>
+	</target>
+
+</project>
