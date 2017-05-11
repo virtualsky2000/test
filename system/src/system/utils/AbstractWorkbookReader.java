@@ -23,13 +23,8 @@ import system.exception.ApplicationException;
 public abstract class AbstractWorkbookReader {
 
     private static final Pattern pCell = Pattern.compile("^([A-Z]+)(\\d+)$");
+
     private static final Pattern pRange = Pattern.compile("^(([A-Z]+)(\\d+)):(([A-Z]+)(\\d+))$");
-
-    protected Workbook workbook;
-
-    protected File file;
-
-    protected String fileName;
 
     private static DateFormat dfDay = new SimpleDateFormat("yyyy/MM/dd");
 
@@ -42,6 +37,12 @@ public abstract class AbstractWorkbookReader {
     private static Date dtInitDay;
 
     private static Date dtInitSec;
+
+    protected Workbook workbook;
+
+    protected File file;
+
+    protected String fileName;
 
     static {
         try {

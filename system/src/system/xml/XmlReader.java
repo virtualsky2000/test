@@ -79,7 +79,7 @@ public class XmlReader {
     }
 
     public XmlNode getNode(String path) {
-        return XmlNode.getNode(root.getLstNode(), path);
+        return XmlNode.getNode(root, path);
     }
 
     public XmlNode getRootNode() {
@@ -183,75 +183,93 @@ public class XmlReader {
 
         private XmlReader self = XmlReader.this;
 
+        @Override
         public void setDocumentLocator(Locator locator) {
             self.setDocumentLocator(locator);
         }
 
+        @Override
         public void startDocument() throws SAXException {
             self.startDocument();
         }
 
+        @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes)
                 throws SAXException {
             self.startElement(uri, localName, qName, attributes);
         }
 
+        @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
             self.endElement(uri, localName, qName);
         }
 
+        @Override
         public void characters(char[] ch, int start, int length) throws SAXException {
             self.characters(ch, start, length);
         }
 
+        @Override
         public void endDocument() throws SAXException {
             self.endDocument();
         }
 
+        @Override
         public void startPrefixMapping(String prefix, String uri) throws SAXException {
             self.startPrefixMapping(prefix, uri);
         }
 
+        @Override
         public void endPrefixMapping(String prefix) throws SAXException {
             self.endPrefixMapping(prefix);
         }
 
+        @Override
         public void ignorableWhitespace(char ch[], int start, int length) throws SAXException {
             self.ignorableWhitespace(ch, start, length);
         }
 
+        @Override
         public void processingInstruction(String target, String data) throws SAXException {
             self.processingInstruction(target, data);
         }
 
+        @Override
         public void skippedEntity(String name) throws SAXException {
             self.skippedEntity(name);
         }
 
+        @Override
         public void startDTD(String name, String publicId, String systemId) throws SAXException {
             self.startDTD(name, publicId, systemId);
         }
 
+        @Override
         public void endDTD() throws SAXException {
             self.endDTD();
         }
 
+        @Override
         public void startEntity(String name) throws SAXException {
             self.startEntity(name);
         }
 
+        @Override
         public void endEntity(String name) throws SAXException {
             self.endEntity(name);
         }
 
+        @Override
         public void startCDATA() throws SAXException {
             self.startCDATA();
         }
 
+        @Override
         public void endCDATA() throws SAXException {
             self.endCDATA();
         }
 
+        @Override
         public void comment(char[] ch, int start, int length) throws SAXException {
             self.comment(ch, start, length);
         }

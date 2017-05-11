@@ -22,5 +22,6 @@
 	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-3.15.jar"/>
 	<classpathentry kind="lib" path="lib/xmlbeans-2.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/vtd-xml_2_13_1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

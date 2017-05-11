@@ -328,4 +328,24 @@ public class XmlNode {
         return null;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<").append(name);
+
+        if (lstAttribute != null && lstAttribute.size() > 0) {
+            for (XmlAttribute attr : lstAttribute) {
+                sb.append(" ").append(attr.getName()).append("=\"").append(attr.getValue()).append("\"");
+            }
+        }
+
+        if (value == null || value.length() == 0) {
+            sb.append(" />");
+        } else {
+            sb.append(">").append(value).append("</").append(name).append(">");
+        }
+
+        return sb.toString();
+    }
+
 }

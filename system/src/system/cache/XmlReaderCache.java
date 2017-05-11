@@ -42,6 +42,7 @@ public class XmlReaderCache extends XmlReader {
         super(file, charset);
     }
 
+    @Override
     synchronized public void load() {
         long lastTimes = file.lastModified();
         if (times < lastTimes) {
@@ -52,6 +53,7 @@ public class XmlReaderCache extends XmlReader {
         }
     }
 
+    @Override
     public XmlNode getNode(String path) {
         load();
         return super.getNode(path);

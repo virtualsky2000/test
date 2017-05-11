@@ -120,50 +120,62 @@ public class PropertiesReader {
 
         private LinkedHashMap<Object, Object> mapData = new LinkedHashMap<>();
 
+        @Override
         public Object put(Object key, Object value) {
             return mapData.put(key, value);
         }
 
+        @Override
         public Object get(Object key) {
             return mapData.get(key);
         }
 
+        @Override
         public boolean contains(Object value) {
             return mapData.containsValue(value);
         }
 
+        @Override
         public boolean containsKey(Object key) {
             return mapData.containsKey(key);
         }
 
+        @Override
         public Object remove(Object key) {
             return mapData.remove(key);
         }
 
+        @Override
         public void clear() {
             mapData.clear();
         }
 
+        @Override
         public int size() {
             return mapData.size();
         }
 
+        @Override
         public boolean isEmpty() {
             return mapData.isEmpty();
         }
 
+        @Override
         public Collection<Object> values() {
             return mapData.values();
         }
 
+        @Override
         public Set<Object> keySet() {
             return mapData.keySet();
         }
 
+        @Override
         public Set<Map.Entry<Object, Object>> entrySet() {
             return mapData.entrySet();
         }
 
+        @Override
         public synchronized Enumeration<Object> keys() {
             return new Enumeration<Object>() {
 
@@ -184,6 +196,7 @@ public class PropertiesReader {
             };
         }
 
+        @Override
         public synchronized Enumeration<Object> elements() {
             return new Enumeration<Object>() {
 

@@ -25,14 +25,16 @@ public final class CacheManager {
 
     static {
         TimerTask task = new TimerTask() {
+
+            @Override
             public void run() {
                 checkCache();
             }
+
         };
 
         timer = new Timer();
         timer.schedule(task, 0, delayTime);
-
     }
 
     synchronized public static void checkCache() {

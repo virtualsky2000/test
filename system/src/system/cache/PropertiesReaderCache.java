@@ -53,6 +53,7 @@ public class PropertiesReaderCache extends PropertiesReader  {
         super(file, charset, sort);
     }
 
+    @Override
     synchronized public void load() {
         long lastTimes = file.lastModified();
         if (times < lastTimes) {
