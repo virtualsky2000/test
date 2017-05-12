@@ -18,7 +18,6 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.LocatorImpl;
 
 import system.exception.ApplicationException;
 import system.logging.LogManager;
@@ -98,7 +97,11 @@ public class XmlReader {
     protected void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
         XmlNode node = new XmlNode(parent, qName, getAttributes(attributes));
-        node.setLocator(new LocatorImpl(locator));
+        node.setLineNumber(locator.getLineNumber());
+        node.setColumnNumber(locator.getColumnNumber());
+        node.setSystemId(locator.getSystemId());
+        node.setPublicId(locator.getPublicId());
+
         node.setComment(comment);
 
         if (root == null) {

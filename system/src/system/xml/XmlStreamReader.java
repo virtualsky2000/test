@@ -143,7 +143,11 @@ public class XmlStreamReader {
 
     protected void startElement(String name, List<XmlAttribute> lstAttribute, Location location) {
         XmlNode node = new XmlNode(parent, name, lstAttribute);
-        node.setLocation(location);
+        node.setLineNumber(location.getLineNumber());
+        node.setColumnNumber(location.getColumnNumber());
+        node.setSystemId(location.getSystemId());
+        node.setPublicId(location.getPublicId());
+
         node.setComment(comment);
 
         if (root == null) {

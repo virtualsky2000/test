@@ -3,10 +3,6 @@ package system.xml;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.stream.Location;
-
-import org.xml.sax.Locator;
-
 /**
  * XMLノートクラス
  *
@@ -31,9 +27,15 @@ public class XmlNode {
     /** 子ノートリスト */
     private List<XmlNode> lstNode;
 
-    private Location location;
+    /** 行番号 */
+    private int lineNumber = -1;
 
-    private Locator locator;
+    /** 列番号 */
+    private int columnNumber = -1;
+
+    private String systemId = null;
+
+    private String publicId = null;
 
     private String path;
 
@@ -153,68 +155,36 @@ public class XmlNode {
         this.lstNode = lstNode;
     }
 
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Locator getLocator() {
-        return locator;
-    }
-
-    public void setLocator(Locator locator) {
-        this.locator = locator;
-    }
-
     public int getLineNumber() {
-        if (location != null) {
-            return location.getLineNumber();
-        } else if (locator != null) {
-            return locator.getLineNumber();
-        } else {
-            return -1;
-        }
+        return lineNumber;
+    }
+
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
     }
 
     public int getColumnNumber() {
-        if (location != null) {
-            return location.getColumnNumber();
-        } else if (locator != null) {
-            return locator.getColumnNumber();
-        } else {
-            return -1;
-        }
+        return columnNumber;
     }
 
-    public int getCharacterOffset() {
-        if (location != null) {
-            return location.getCharacterOffset();
-        } else {
-            return -1;
-        }
+    public void setColumnNumber(int columnNumber) {
+        this.columnNumber = columnNumber;
     }
 
     public String getSystemId() {
-        if (location != null) {
-            return location.getSystemId();
-        } else if (locator != null) {
-            return locator.getSystemId();
-        } else {
-            return null;
-        }
+        return systemId;
+    }
+
+    public void setSystemId(String systemId) {
+        this.systemId = systemId;
     }
 
     public String getPublicId() {
-        if (location != null) {
-            return location.getPublicId();
-        } else if (locator != null) {
-            return locator.getPublicId();
-        } else {
-            return null;
-        }
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 
     /**

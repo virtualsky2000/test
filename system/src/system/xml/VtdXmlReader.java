@@ -19,6 +19,8 @@ public class VtdXmlReader {
 
     private static final Logger log = LogManager.getLogger(VtdXmlReader.class);
 
+    private static final Charset defaultCharset = Charset.defaultCharset();
+
     protected File file;
 
     protected Charset charset;
@@ -26,7 +28,7 @@ public class VtdXmlReader {
     private XmlNode root;
 
     public static VtdXmlReader load(String fileName) {
-        return load(FileUtils.getFile(fileName), Charset.defaultCharset());
+        return load(FileUtils.getFile(fileName), defaultCharset);
     }
 
     public static VtdXmlReader load(String fileName, Charset charset) {
@@ -51,6 +53,10 @@ public class VtdXmlReader {
             byte[] buf = new byte[(int) file.length()];
             fis.read(buf);
             fis.close();
+
+            if (!defaultCharset.equals(charset)) {
+                buf = new String(buf, charset).getBytes(defaultCharset);
+            }
 
             VTDGen vg = new VTDGen();
 
@@ -99,14 +105,11 @@ public class VtdXmlReader {
                         root = node;
                         parent = root;
                     }
-
-                    curNode = node;
                 } else {
                     parent = parent.getParent();
-
                     node = new XmlNode(parent, tagName, lstAttributes);
-                    curNode = node;
                 }
+                curNode = node;
 
                 int index = vn.getText();
                 if (index != -1) {
@@ -122,7 +125,6 @@ public class VtdXmlReader {
         } catch (Exception e) {
             throw new ApplicationException("Xmlファイル「" + file.getAbsolutePath() + "」読込が失敗しました。", e);
         }
-
     }
 
     public XmlNode getRootNode() {
