@@ -146,14 +146,7 @@ public class XmlStreamReader {
         node.setLocation(location);
         node.setComment(comment);
 
-        if (parent != null) {
-            List<XmlNode> nodes = parent.getLstNode();
-            if (nodes == null) {
-                nodes = new ArrayList<>();
-                parent.setLstNode(nodes);
-            }
-            nodes.add(node);
-        } else {
+        if (root == null) {
             root = node;
         }
 

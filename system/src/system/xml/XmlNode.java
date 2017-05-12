@@ -45,6 +45,14 @@ public class XmlNode {
      */
     public XmlNode(XmlNode parent, String name, List<XmlAttribute> lstAttribute) {
         this.parent = parent;
+        if (parent != null) {
+            List<XmlNode> nodes = parent.lstNode;
+            if (nodes == null) {
+                nodes = new ArrayList<>();
+                parent.lstNode = nodes;
+            }
+            nodes.add(this);
+        }
         this.name = name;
         this.lstAttribute = lstAttribute;
     }

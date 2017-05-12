@@ -23,7 +23,7 @@ public class VtdXmlReader {
 
     protected Charset charset;
 
-    protected XmlNode root;
+    private XmlNode root;
 
     public static VtdXmlReader load(String fileName) {
         return load(FileUtils.getFile(fileName), Charset.defaultCharset());
@@ -68,40 +68,44 @@ public class VtdXmlReader {
             XmlNode node = null;
             String tagName;
 
+            log.debug(file.getName());
+
             while (ap.iterate()) {
                 curDepth = vn.getCurrentDepth();
                 tagName = vn.toString(vn.getCurrentIndex());
 
-                if (prevDepth <= curDepth) {
-                    List<XmlAttribute> lstAttributes = null;
-                    int attrCount = vn.getAttrCount();
-                    if (attrCount > 0) {
-                        lstAttributes = new ArrayList<>(vn.getAttrCount());
-                        int i = vn.getCurrentIndex() + 1;
-                        for (;;) {
-                            if (vn.hasAttr(vn.toString(i))) {
-                                lstAttributes.add(new XmlAttribute(vn.toString(i), vn.toString(i + 1)));
-                                i += 2;
-                                attrCount--;
-                                if (attrCount == 0) {
-                                    break;
-                                }
-                            }
+                List<XmlAttribute> lstAttributes = null;
+                int attrCount = vn.getAttrCount();
+                if (attrCount > 0) {
+                    lstAttributes = new ArrayList<>(vn.getAttrCount());
+                    int i = vn.getCurrentIndex() + 1;
+                    while (attrCount > 0) {
+                        if (vn.hasAttr(vn.toString(i))) {
+                            lstAttributes.add(new XmlAttribute(vn.toString(i), vn.toString(i + 1)));
+                            i += 2;
+                            attrCount--;
                         }
                     }
+                }
+
+                if (prevDepth <= curDepth) {
 
                     if (prevDepth < curDepth) {
                         parent = curNode;
                     }
                     node = new XmlNode(parent, tagName, lstAttributes);
-                    curNode = node;
 
                     if (curDepth == 0) {
                         root = node;
                         parent = root;
                     }
+
+                    curNode = node;
                 } else {
                     parent = parent.getParent();
+
+                    node = new XmlNode(parent, tagName, lstAttributes);
+                    curNode = node;
                 }
 
                 int index = vn.getText();
@@ -111,7 +115,7 @@ public class VtdXmlReader {
 
                 prevDepth = curDepth;
 
-                log.info(node);
+                log.debug(node);
             }
 
             vg.clear();
@@ -119,6 +123,10 @@ public class VtdXmlReader {
             throw new ApplicationException("Xmlファイル「" + file.getAbsolutePath() + "」読込が失敗しました。", e);
         }
 
+    }
+
+    public XmlNode getRootNode() {
+        return root;
     }
 
 }
