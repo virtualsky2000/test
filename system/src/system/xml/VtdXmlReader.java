@@ -69,6 +69,7 @@ public class VtdXmlReader {
 
             int curDepth = 0;
             int prevDepth = 0;
+            int curIndex;
             XmlNode parent = null;
             XmlNode curNode = null;
             XmlNode node = null;
@@ -78,16 +79,18 @@ public class VtdXmlReader {
 
             while (ap.iterate()) {
                 curDepth = vn.getCurrentDepth();
-                tagName = vn.toString(vn.getCurrentIndex());
+                curIndex = vn.getCurrentIndex();
+                tagName = vn.toString(curIndex);
 
                 List<XmlAttribute> lstAttributes = null;
                 int attrCount = vn.getAttrCount();
                 if (attrCount > 0) {
-                    lstAttributes = new ArrayList<>(vn.getAttrCount());
-                    int i = vn.getCurrentIndex() + 1;
+                    lstAttributes = new ArrayList<>(attrCount);
+                    int i = curIndex + 1;
                     while (attrCount > 0) {
-                        if (vn.hasAttr(vn.toString(i))) {
-                            lstAttributes.add(new XmlAttribute(vn.toString(i), vn.toString(i + 1)));
+                        String key = vn.toString(i);
+                        if (vn.hasAttr(key)) {
+                            lstAttributes.add(new XmlAttribute(key, vn.toString(i + 1)));
                             i += 2;
                             attrCount--;
                         }
