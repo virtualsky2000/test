@@ -35,8 +35,12 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellType;
 
 import system.exception.ApplicationException;
+import system.logging.LogManager;
+import system.logging.Logger;
 
 public class HSSFWorkbookReader extends AbstractWorkbookReader {
+
+    private static final Logger log = LogManager.getLogger(HSSFWorkbookReader.class);
 
     private final static List<String> lstExtName = Arrays.asList("xls", "xlt");
 
@@ -168,55 +172,68 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
     }
 
     protected void processBOFRecord(BOFRecord record) {
-        if (record.getType() == BOFRecord.TYPE_WORKBOOK) {
+        int type = record.getType();
+        if (type == BOFRecord.TYPE_WORKBOOK) {
             curSheetIndex = -1;
-        } else if (record.getType() == BOFRecord.TYPE_WORKSHEET) {
+            log.debug("in processBOFRecord");
+        } else if (type == BOFRecord.TYPE_WORKSHEET) {
             curSheetIndex++;
             curSheetName = sheetNames.get(curSheetIndex);
             curSheet = (HSSFSheet) workbook.createSheet(curSheetName);
+            log.debug("in processBOFRecord {}", curSheetName);
         }
     }
 
     protected void processEOFRecord(EOFRecord record) {
+        if (curSheetName != null) {
+            log.debug("in processEOFRecord {}", curSheetName);
+        } else {
+            log.debug("in processEOFRecord");
+        }
         curSheet = null;
         curSheetName = null;
     }
 
     protected void processBoundSheetRecord(BoundSheetRecord record) {
+        log.debug("in processBoundSheetRecord");
         sheetNames.add(record.getSheetname());
     }
 
     protected void processSSTRecord(SSTRecord record) {
+        log.debug("in processSSTRecord");
         sstRecord = record;
     }
 
     protected void processRowRecord(RowRecord record) {
+        log.debug("in processRowRecord");
         curSheet.createRow(record.getRowNumber());
     }
 
     protected void processFontRecord(FontRecord record) {
-        record.getFontName();
+        log.debug("in processFontRecord");
     }
 
     protected void processStyleRecord(StyleRecord record) {
-        record.toString();
+        log.debug("in processStyleRecord");
     }
 
     protected void processFormatRecord(FormatRecord record) {
-        record.toString();
+        log.debug("in processFormatRecord");
     }
 
     protected void processExtendedFormatRecord(ExtendedFormatRecord record) {
-        record.toString();
+        log.debug("in processExtendedFormatRecord");
     }
 
     protected void processLabelSSTRecord(LabelSSTRecord record) {
+        log.debug("in processLabelSSTRecord");
         HSSFCell cell = newCell(record);
         cell.setCellType(CellType.STRING);
         cell.setCellValue(sstRecord.getString(record.getSSTIndex()).getString());
     }
 
     protected void processNumberRecord(NumberRecord record) {
+        log.debug("in processNumberRecord");
         HSSFCell cell = newCell(record);
 
         switch (record.getXFIndex()) {
@@ -236,6 +253,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
     }
 
     protected void processFormulaRecord(FormulaRecord record) {
+        log.debug("in processFormulaRecord");
         if (record.hasCachedResultString()) {
             // The String itself should be the next record
             stringFormulaRecord = record;
@@ -245,6 +263,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
     }
 
     protected void processStringRecord(StringRecord record) {
+        log.debug("in processStringRecord");
         if (previousSid == FormulaRecord.sid) {
             // Cached string value of a string formula
             HSSFCell cell = newCell(stringFormulaRecord);
@@ -256,11 +275,11 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
     }
 
     protected void processLabelRecord(LabelRecord record) {
-
+        log.debug("in processLabelRecord");
     }
 
     protected void processHyperlinkRecord(HyperlinkRecord record) {
-        record.getAddress();
+        log.debug("in processHyperlinkRecord");
     }
 
     protected void processRecord(Record record) {
@@ -330,6 +349,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
             break;
         default:
 //            System.out.println("sid=" + sid);
+//            log.debug(record);
             break;
         }
 

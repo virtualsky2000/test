@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -25,7 +26,7 @@ public class PropertiesReader {
     private Properties props;
 
     public static PropertiesReader load(String fileName) {
-        return load(FileUtils.getFile(fileName), Charset.defaultCharset(), false);
+        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8, false);
     }
 
     public static PropertiesReader load(String fileName, Charset charset) {
@@ -37,7 +38,7 @@ public class PropertiesReader {
     }
 
     public static PropertiesReader load(String fileName, boolean sort) {
-        return load(FileUtils.getFile(fileName), Charset.defaultCharset(), sort);
+        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8, sort);
     }
 
     public static PropertiesReader load(String fileName, Charset charset, boolean sort) {
@@ -177,6 +178,7 @@ public class PropertiesReader {
 
         @Override
         public synchronized Enumeration<Object> keys() {
+
             return new Enumeration<Object>() {
 
                 int index = 0;
@@ -193,11 +195,14 @@ public class PropertiesReader {
                 public Object nextElement() {
                     return keys[index++];
                 }
+
             };
+
         }
 
         @Override
         public synchronized Enumeration<Object> elements() {
+
             return new Enumeration<Object>() {
 
                 int index = 0;
@@ -214,7 +219,9 @@ public class PropertiesReader {
                 public Object nextElement() {
                     return values[index++];
                 }
+
             };
+
         }
 
     }

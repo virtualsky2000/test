@@ -29,8 +29,12 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import system.exception.ApplicationException;
+import system.logging.LogManager;
+import system.logging.Logger;
 
 public class XSSFWorkbookReader extends AbstractWorkbookReader {
+
+    private static final Logger log = LogManager.getLogger(XSSFWorkbookReader.class);
 
     private final static List<String> lstExtName = Arrays.asList("xlsx", "xlsm", "xltm", "xltx");
 

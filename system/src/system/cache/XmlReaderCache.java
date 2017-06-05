@@ -2,6 +2,7 @@ package system.cache;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,7 +17,7 @@ public class XmlReaderCache extends XmlReader {
     private long times = 0;
 
     public static XmlReaderCache load(String fileName) {
-        return load(FileUtils.getFile(fileName), Charset.defaultCharset());
+        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8);
     }
 
     public static XmlReaderCache load(String fileName, Charset charset) {
@@ -59,14 +60,10 @@ public class XmlReaderCache extends XmlReader {
         return super.getNode(path);
     }
 
-/*    public List<XmlNode> getSubNodes(XmlNode parent, String nodeName) {
+    @Override
+    public XmlNode getRootNode() {
         load();
-        return super.getSubNodes(parent, nodeName);
+        return super.getRootNode();
     }
-
-    public List<XmlNode> getNodes(String nodeName) {
-        load();
-        return super.getNodes(nodeName);
-    }*/
 
 }

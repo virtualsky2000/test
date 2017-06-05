@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class XmlReader {
     private Locator locator;
 
     public static XmlReader load(String fileName) {
-        return load(FileUtils.getFile(fileName), Charset.defaultCharset());
+        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8);
     }
 
     public static XmlReader load(String fileName, Charset charset) {
@@ -101,8 +102,6 @@ public class XmlReader {
         node.setColumnNumber(locator.getColumnNumber());
         node.setSystemId(locator.getSystemId());
         node.setPublicId(locator.getPublicId());
-
-        node.setComment(comment);
 
         if (root == null) {
             root = node;

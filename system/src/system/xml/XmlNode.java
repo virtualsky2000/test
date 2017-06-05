@@ -18,9 +18,6 @@ public class XmlNode {
     /** ノート値 */
     private String value;
 
-    /** コメント */
-    private String comment;
-
     /** 属性リスト */
     private List<XmlAttribute> lstAttribute;
 
@@ -105,22 +102,6 @@ public class XmlNode {
      */
     public void setValue(String value) {
         this.value = value;
-    }
-
-    /**
-     * コメント取得
-     * @return コメント
-     */
-    public String getComment() {
-        return comment;
-    }
-
-    /**
-     * コメント設定
-     * @param comment コメント
-     */
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     /**

@@ -2,6 +2,7 @@ package system.cache;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,7 +16,7 @@ public class PropertiesReaderCache extends PropertiesReader  {
     private long times = 0;
 
     public static PropertiesReaderCache load(String fileName) {
-        return load(FileUtils.getFile(fileName), Charset.defaultCharset(), false);
+        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8, false);
     }
 
     public static PropertiesReaderCache load(String fileName, Charset charset) {
@@ -27,7 +28,7 @@ public class PropertiesReaderCache extends PropertiesReader  {
     }
 
     public static PropertiesReaderCache load(String fileName, boolean sort) {
-        return load(FileUtils.getFile(fileName), Charset.defaultCharset(), sort);
+        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8, sort);
     }
 
     public static PropertiesReaderCache load(String fileName, Charset charset, boolean sort) {

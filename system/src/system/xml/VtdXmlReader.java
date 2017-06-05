@@ -3,6 +3,7 @@ package system.xml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +20,6 @@ public class VtdXmlReader {
 
     private static final Logger log = LogManager.getLogger(VtdXmlReader.class);
 
-    private static final Charset defaultCharset = Charset.defaultCharset();
-
     protected File file;
 
     protected Charset charset;
@@ -28,7 +27,7 @@ public class VtdXmlReader {
     private XmlNode root;
 
     public static VtdXmlReader load(String fileName) {
-        return load(FileUtils.getFile(fileName), defaultCharset);
+        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8);
     }
 
     public static VtdXmlReader load(String fileName, Charset charset) {
@@ -54,8 +53,8 @@ public class VtdXmlReader {
             fis.read(buf);
             fis.close();
 
-            if (!defaultCharset.equals(charset)) {
-                buf = new String(buf, charset).getBytes(defaultCharset);
+            if (!StandardCharsets.UTF_8.equals(charset)) {
+                buf = new String(buf, charset).getBytes(StandardCharsets.UTF_8);
             }
 
             VTDGen vg = new VTDGen();
@@ -89,11 +88,9 @@ public class VtdXmlReader {
                     int i = curIndex + 1;
                     while (attrCount > 0) {
                         String key = vn.toString(i);
-                        if (vn.hasAttr(key)) {
-                            lstAttributes.add(new XmlAttribute(key, vn.toString(i + 1)));
-                            i += 2;
-                            attrCount--;
-                        }
+                        lstAttributes.add(new XmlAttribute(key, vn.toString(i + 1)));
+                        i += 2;
+                        attrCount--;
                     }
                 }
 
@@ -116,15 +113,13 @@ public class VtdXmlReader {
 
                 int index = vn.getText();
                 if (index != -1) {
-                    curNode.setValue(vn.toNormalizedString(index).trim());
+                    node.setValue(vn.toNormalizedString(index).trim());
                 }
 
                 prevDepth = curDepth;
 
                 log.debug(node);
             }
-
-            vg.clear();
         } catch (Exception e) {
             throw new ApplicationException("Xmlファイル「" + file.getAbsolutePath() + "」読込が失敗しました。", e);
         }
