@@ -8,23 +8,31 @@ public class WorkbookReader extends AbstractWorkbookReader {
 	private List<String> lstSheetName;
 
 	public static WorkbookReader load(String fileName) {
-		return load(FileUtils.getFile(fileName), 0);
-	}
-
-	public static WorkbookReader load(File file) {
-		return load(file, 0);
+		return load(FileUtils.getFile(fileName), null, 0);
 	}
 
 	public static WorkbookReader load(String fileName, int userMode) {
-		return load(FileUtils.getFile(fileName), userMode);
+		return load(FileUtils.getFile(fileName), null, userMode);
+	}
+
+	public static WorkbookReader load(String fileName, List<String> lstSheetName) {
+		return load(FileUtils.getFile(fileName), lstSheetName, 0);
+	}
+
+	public static WorkbookReader load(String fileName, List<String> lstSheetName, int userMode) {
+		return load(FileUtils.getFile(fileName), lstSheetName, userMode);
+	}
+
+	public static WorkbookReader load(File file) {
+		return load(file, null, 0);
 	}
 
 	public static WorkbookReader load(File file, int userMode) {
 		return load(file, null, userMode);
 	}
 
-	public static WorkbookReader load(String fileName, List<String> lstSheetName) {
-		return load(FileUtils.getFile(fileName), lstSheetName, 0);
+	public static WorkbookReader load(File file, List<String> lstSheetName) {
+		return load(file, lstSheetName, 0);
 	}
 
 	public static WorkbookReader load(File file, List<String> lstSheetName, int userMode) {
