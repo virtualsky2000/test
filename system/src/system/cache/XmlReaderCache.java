@@ -2,7 +2,6 @@ package system.cache;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,7 +16,7 @@ public class XmlReaderCache extends XmlReader {
     private long times = 0;
 
     public static XmlReaderCache load(String fileName) {
-        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8);
+        return load(FileUtils.getFile(fileName), Charset.defaultCharset());
     }
 
     public static XmlReaderCache load(String fileName, Charset charset) {
