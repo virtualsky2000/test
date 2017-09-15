@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -182,9 +183,7 @@ public abstract class AbstractWorkbookReader {
 					}
 				}
 			} else {
-				for (int i = 0, len = rowData.length; i < len; i++) {
-					rowData[i] = null;
-				}
+				Arrays.fill(rowData, 0, rowData.length, null);
 			}
 
 			lstData.add(rowData);
@@ -228,9 +227,7 @@ public abstract class AbstractWorkbookReader {
 					getCellValue(cell, rowData, colIndex - startCol);
 				}
 			} else {
-				for (int i = 0, len = rowData.length; i < len; i++) {
-					rowData[i] = null;
-				}
+				Arrays.fill(rowData, 0, rowData.length, null);
 			}
 
 			lstData.add(rowData);
@@ -252,9 +249,7 @@ public abstract class AbstractWorkbookReader {
 					getCellValue(cell, rowData, i);
 				}
 			} else {
-				for (int i = 0; i < cols.length; i++) {
-					rowData[i] = null;
-				}
+				Arrays.fill(rowData, 0, rowData.length, null);
 			}
 
 			lstData.add(rowData);
