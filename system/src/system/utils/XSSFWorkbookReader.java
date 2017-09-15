@@ -36,8 +36,6 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 
 	private static final Logger log = LogManager.getLogger(XSSFWorkbookReader.class);
 
-	private List<String> lstSheetName;
-
 	private SharedStringsTable sst;
 
 	private XSSFSheet curSheet;
@@ -99,9 +97,9 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 					inp = new PushbackInputStream(inp, 8);
 				}
 				if (lstSheetName == null) {
-					workbook = new XSSFWorkbook(OPCPackage.open(inp));
+					workbook = new XSSFWorkbook(inp);
 				} else {
-					workbook = new XSSFWorkbook(OPCPackage.open(inp)) {
+					workbook = new XSSFWorkbook(inp) {
 
 						@Override
 						public void parseSheet(Map<String, XSSFSheet> shIdMap, CTSheet ctSheet) {

@@ -32,6 +32,8 @@ public abstract class AbstractWorkbookReader {
 
 	protected int userMode;
 
+	protected List<String> lstSheetName;
+
 	public Iterator<Sheet> sheetIterator() {
 		return workbook.iterator();
 	}

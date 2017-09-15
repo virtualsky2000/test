@@ -41,8 +41,6 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 
 	private static final Logger log = LogManager.getLogger(HSSFWorkbookReader.class);
 
-	private List<String> lstSheetName;
-
 	private SSTRecord sstRecord;
 
 	private HSSFSheet curSheet;

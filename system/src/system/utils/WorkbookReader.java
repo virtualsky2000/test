@@ -5,8 +5,6 @@ import java.util.List;
 
 public class WorkbookReader extends AbstractWorkbookReader {
 
-	private List<String> lstSheetName;
-
 	public static WorkbookReader load(String fileName) {
 		return load(FileUtils.getFile(fileName), null, 0);
 	}
