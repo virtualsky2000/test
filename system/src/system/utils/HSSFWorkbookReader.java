@@ -1,11 +1,13 @@
 package system.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.hssf.eventusermodel.AbortableHSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
 import org.apache.poi.hssf.eventusermodel.HSSFUserException;
@@ -13,23 +15,18 @@ import org.apache.poi.hssf.record.BOFRecord;
 import org.apache.poi.hssf.record.BoundSheetRecord;
 import org.apache.poi.hssf.record.CellRecord;
 import org.apache.poi.hssf.record.EOFRecord;
-import org.apache.poi.hssf.record.ExtendedFormatRecord;
-import org.apache.poi.hssf.record.FontRecord;
-import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.record.FormulaRecord;
-import org.apache.poi.hssf.record.HyperlinkRecord;
-import org.apache.poi.hssf.record.LabelRecord;
 import org.apache.poi.hssf.record.LabelSSTRecord;
 import org.apache.poi.hssf.record.NumberRecord;
 import org.apache.poi.hssf.record.Record;
 import org.apache.poi.hssf.record.RowRecord;
 import org.apache.poi.hssf.record.SSTRecord;
 import org.apache.poi.hssf.record.StringRecord;
-import org.apache.poi.hssf.record.StyleRecord;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellType;
 
@@ -56,6 +53,8 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 	private String curSheetName;
 
 	private List<String> sheetNames = new ArrayList<>();
+
+	private int count;
 
 	public static HSSFWorkbookReader load(String fileName) {
 		return load(FileUtils.getFile(fileName), null, 0);
@@ -96,75 +95,58 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 		this.file = file;
 		this.userMode = userMode;
 		this.lstSheetName = lstSheetName;
+		if (lstSheetName != null) {
+			count = lstSheetName.size();
+		}
 	}
 
 	public void load() {
-		workbook = new HSSFWorkbook();
-
 		try {
-			AbortableHSSFListener listener = new AbortableHSSFListener() {
-
-				@Override
-				public short abortableProcessRecord(Record paramRecord) throws HSSFUserException {
-					return HSSFWorkbookReader.this.abortableProcessRecord(paramRecord);
+			if (userMode == 0) {
+				InputStream inp = new FileInputStream(file);
+				if (!inp.markSupported()) {
+					inp = new PushbackInputStream(inp, 8);
 				}
+				NPOIFSFileSystem fs = new NPOIFSFileSystem(inp);
+				workbook = new HSSFWorkbook(fs);
+			} else {
+				workbook = new HSSFWorkbook();
+				HSSFRequest request = new HSSFRequest();
 
-			};
+				addListener(request);
 
-			HSSFRequest request = new HSSFRequest();
-			request.addListenerForAllRecords(listener);
-			HSSFEventFactory factory = new HSSFEventFactory();
-			POIFSFileSystem poifs = new POIFSFileSystem(file);
-			factory.abortableProcessWorkbookEvents(request, poifs);
-		} catch (HSSFUserException | IOException e) {
-			throw new ApplicationException(e);
-		}
-	}
-
-	public void load(short... sids) {
-		workbook = new HSSFWorkbook();
-
-		try {
-			POIFSFileSystem poifs = new POIFSFileSystem(file);
-
-			HSSFRequest request = new HSSFRequest();
-
-			request.addListener(record -> processBOFRecord((BOFRecord) record), BOFRecord.sid);
-			request.addListener(record -> processEOFRecord((EOFRecord) record), EOFRecord.sid);
-			request.addListener(record -> processBoundSheetRecord((BoundSheetRecord) record), BoundSheetRecord.sid);
-			request.addListener(record -> processSSTRecord((SSTRecord) record), SSTRecord.sid);
-
-			for (short sid : sids) {
-
-				switch (sid) {
-				case RowRecord.sid:
-					request.addListener(record -> processRowRecord((RowRecord) record), RowRecord.sid);
-					break;
-				case LabelSSTRecord.sid:
-					request.addListener(record -> processLabelSSTRecord((LabelSSTRecord) record), LabelSSTRecord.sid);
-					break;
-				case NumberRecord.sid:
-					request.addListener(record -> processNumberRecord((NumberRecord) record), NumberRecord.sid);
-					break;
-				case FormulaRecord.sid:
-					request.addListener(record -> processFormulaRecord((FormulaRecord) record), FormulaRecord.sid);
-					break;
-				case StringRecord.sid:
-					request.addListener(record -> processStringRecord((StringRecord) record), StringRecord.sid);
-					break;
-				}
-
+				HSSFEventFactory factory = new HSSFEventFactory();
+				POIFSFileSystem poifs = new POIFSFileSystem(file);
+				factory.abortableProcessWorkbookEvents(request, poifs);
 			}
-
-			HSSFEventFactory factory = new HSSFEventFactory();
-
-			factory.abortableProcessWorkbookEvents(request, poifs);
 		} catch (HSSFUserException | IOException e) {
 			throw new ApplicationException(e);
 		}
 	}
 
-	protected void processBOFRecord(BOFRecord record) {
+	protected void addListener(HSSFRequest request) {
+		request.addListener(record -> processBOFRecord((BOFRecord) record), BOFRecord.sid);
+		request.addListener(record -> processEOFRecord((EOFRecord) record), EOFRecord.sid);
+		request.addListener(record -> processBoundSheetRecord((BoundSheetRecord) record), BoundSheetRecord.sid);
+		request.addListener(record -> processSSTRecord((SSTRecord) record), SSTRecord.sid);
+
+		request.addListener(record -> processRowRecord((RowRecord) record), RowRecord.sid);
+		request.addListener(record -> processLabelSSTRecord((LabelSSTRecord) record), LabelSSTRecord.sid);
+		request.addListener(record -> processNumberRecord((NumberRecord) record), NumberRecord.sid);
+		request.addListener(record -> processFormulaRecord((FormulaRecord) record), FormulaRecord.sid);
+		request.addListener(record -> processStringRecord((StringRecord) record), StringRecord.sid);
+
+//		request.addListenerForAllRecords(new AbortableHSSFListener() {
+//
+//			@Override
+//			public short abortableProcessRecord(Record paramRecord) throws HSSFUserException {
+//				return HSSFWorkbookReader.this.abortableProcessRecord(paramRecord);
+//			}
+//
+//		});
+	}
+
+	protected short processBOFRecord(BOFRecord record) {
 		int type = record.getType();
 		if (type == BOFRecord.TYPE_WORKBOOK) {
 			curSheetIndex = -1;
@@ -172,60 +154,72 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 		} else if (type == BOFRecord.TYPE_WORKSHEET) {
 			curSheetIndex++;
 			curSheetName = sheetNames.get(curSheetIndex);
-			curSheet = (HSSFSheet) workbook.createSheet(curSheetName);
-			log.debug("in processBOFRecord {}", curSheetName);
+
+			if (lstSheetName == null || lstSheetName.contains(curSheetName)) {
+				curSheet = (HSSFSheet) workbook.createSheet(curSheetName);
+				log.debug("in processBOFRecord {}", curSheetName);
+			} else if (lstSheetName != null && !lstSheetName.contains(curSheetName)) {
+				curSheetName = null;
+			}
 		}
+		return 0;
 	}
 
-	protected void processEOFRecord(EOFRecord record) {
-		if (curSheetName != null) {
-			log.debug("in processEOFRecord {}", curSheetName);
-		} else {
-			log.debug("in processEOFRecord");
+	protected short processEOFRecord(EOFRecord record) {
+		if (curSheet == null) {
+			return 0;
 		}
+
+		log.debug("in processEOFRecord {}", curSheetName);
+		count--;
 		curSheet = null;
 		curSheetName = null;
+
+		if (lstSheetName != null && count == 0) {
+			return -1;
+		}
+		return 0;
 	}
 
-	protected void processBoundSheetRecord(BoundSheetRecord record) {
+	protected short processBoundSheetRecord(BoundSheetRecord record) {
 		log.debug("in processBoundSheetRecord");
 		sheetNames.add(record.getSheetname());
+		return 0;
 	}
 
-	protected void processSSTRecord(SSTRecord record) {
+	protected short processSSTRecord(SSTRecord record) {
 		log.debug("in processSSTRecord");
 		sstRecord = record;
+		return 0;
 	}
 
-	protected void processRowRecord(RowRecord record) {
+	protected short processRowRecord(RowRecord record) {
+		if (curSheet == null) {
+			return 0;
+		}
+
 		log.debug("in processRowRecord");
 		curSheet.createRow(record.getRowNumber());
+		return 0;
 	}
 
-	protected void processFontRecord(FontRecord record) {
-		log.debug("in processFontRecord");
-	}
+	protected short processLabelSSTRecord(LabelSSTRecord record) {
+		if (curSheet == null) {
+			return 0;
+		}
 
-	protected void processStyleRecord(StyleRecord record) {
-		log.debug("in processStyleRecord");
-	}
-
-	protected void processFormatRecord(FormatRecord record) {
-		log.debug("in processFormatRecord");
-	}
-
-	protected void processExtendedFormatRecord(ExtendedFormatRecord record) {
-		log.debug("in processExtendedFormatRecord");
-	}
-
-	protected void processLabelSSTRecord(LabelSSTRecord record) {
 		log.debug("in processLabelSSTRecord");
 		HSSFCell cell = newCell(record);
 		cell.setCellType(CellType.STRING);
 		cell.setCellValue(sstRecord.getString(record.getSSTIndex()).getString());
+		return 0;
 	}
 
-	protected void processNumberRecord(NumberRecord record) {
+	protected short processNumberRecord(NumberRecord record) {
+		if (curSheet == null) {
+			return 0;
+		}
+
 		log.debug("in processNumberRecord");
 		HSSFCell cell = newCell(record);
 
@@ -243,9 +237,14 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 			cell.setCellType(CellType.NUMERIC);
 			cell.setCellValue(record.getValue());
 		}
+		return 0;
 	}
 
-	protected void processFormulaRecord(FormulaRecord record) {
+	protected short processFormulaRecord(FormulaRecord record) {
+		if (curSheet == null) {
+			return 0;
+		}
+
 		log.debug("in processFormulaRecord");
 		if (record.hasCachedResultString()) {
 			// The String itself should be the next record
@@ -253,9 +252,14 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 		} else {
 			// addTextCell(record, formatListener.formatNumberDateCell(formula));
 		}
+		return 0;
 	}
 
-	protected void processStringRecord(StringRecord record) {
+	protected short processStringRecord(StringRecord record) {
+		if (curSheet == null) {
+			return 0;
+		}
+
 		log.debug("in processStringRecord");
 		if (previousSid == FormulaRecord.sid) {
 			// Cached string value of a string formula
@@ -265,89 +269,61 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 		} else {
 			// Some other string not associated with a cell, skip
 		}
-	}
-
-	protected void processLabelRecord(LabelRecord record) {
-		log.debug("in processLabelRecord");
-	}
-
-	protected void processHyperlinkRecord(HyperlinkRecord record) {
-		log.debug("in processHyperlinkRecord");
+		return 0;
 	}
 
 	protected short abortableProcessRecord(Record record) throws HSSFUserException {
+		if (curSheetName != null) {
+			if (lstSheetName != null && !lstSheetName.contains(curSheetName) && record.getSid() != BOFRecord.sid) {
+				return 0;
+			}
+		}
+
+		short ret = 0;
 		short sid = record.getSid();
+
 		switch (sid) {
 		case BOFRecord.sid:
 			// start of workbook, worksheet etc. records
-			processBOFRecord((BOFRecord) record);
+			ret = processBOFRecord((BOFRecord) record);
 			break;
 		case EOFRecord.sid:
 			// end of workbook, worksheet etc. records
-			processEOFRecord((EOFRecord) record);
+			ret = processEOFRecord((EOFRecord) record);
 			break;
 		case BoundSheetRecord.sid:
 			// Worksheet index record
-			processBoundSheetRecord((BoundSheetRecord) record);
+			ret = processBoundSheetRecord((BoundSheetRecord) record);
 			break;
 		case SSTRecord.sid:
 			// holds all the strings for LabelSSTRecords
-			processSSTRecord((SSTRecord) record);
+			ret = processSSTRecord((SSTRecord) record);
 			break;
 		case RowRecord.sid:
-			if (!lstSheetName.contains(curSheetName)) {
-				break;
-			}
-			processRowRecord((RowRecord) record);
-			break;
-		case FontRecord.sid:
-			processFontRecord((FontRecord) record);
-			break;
-		case StyleRecord.sid:
-			processStyleRecord((StyleRecord) record);
-			break;
-		case FormatRecord.sid:
-			processFormatRecord((FormatRecord) record);
-			break;
-		case ExtendedFormatRecord.sid:
-			processExtendedFormatRecord((ExtendedFormatRecord) record);
+			ret = processRowRecord((RowRecord) record);
 			break;
 		case LabelSSTRecord.sid:
 			// Ref. a string in the shared string table
-			if (!lstSheetName.contains(curSheetName)) {
-				break;
-			}
-			processLabelSSTRecord((LabelSSTRecord) record);
+			ret = processLabelSSTRecord((LabelSSTRecord) record);
 			break;
 		case NumberRecord.sid:
 			// Contains a numeric cell value
-			if (!lstSheetName.contains(curSheetName)) {
-				break;
-			}
-			processNumberRecord((NumberRecord) record);
+			ret = processNumberRecord((NumberRecord) record);
 			break;
 		case FormulaRecord.sid:
 			// Cell value from a formula
-			processFormulaRecord((FormulaRecord) record);
+			ret = processFormulaRecord((FormulaRecord) record);
 			break;
 		case StringRecord.sid:
 			processStringRecord((StringRecord) record);
 			break;
-		case LabelRecord.sid:
-			processLabelRecord((LabelRecord) record);
-			break;
-		case HyperlinkRecord.sid:
-			// holds a URL associated with a cell
-			processHyperlinkRecord((HyperlinkRecord) record);
-			break;
 		default:
-			// log.debug("sid=" + sid);
+//			log.debug("sid=" + sid);
 			// log.debug(record);
 			break;
 		}
 
-		return 0;
-
+		return ret;
 	}
 
 	private HSSFCell newCell(CellRecord record) {

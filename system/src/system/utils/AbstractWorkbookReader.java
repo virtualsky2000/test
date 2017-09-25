@@ -12,12 +12,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.poi.poifs.crypt.Decryptor;
+import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.DocumentFactoryHelper;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.util.IOUtils;
 
 import system.exception.ApplicationException;
 
@@ -34,6 +38,8 @@ public abstract class AbstractWorkbookReader {
 	protected int userMode;
 
 	protected List<String> lstSheetName;
+
+	private int type = -1;
 
 	public Iterator<Sheet> sheetIterator() {
 		return workbook.iterator();
@@ -307,7 +313,7 @@ public abstract class AbstractWorkbookReader {
 			return p;
 		}
 
-		throw new ApplicationException("invalid cell string");
+		throw new ApplicationException("invalid cell string:" + cell);
 	}
 
 	private Rect getRect(String range) {
@@ -319,25 +325,48 @@ public abstract class AbstractWorkbookReader {
 			return r;
 		}
 
-		throw new ApplicationException("invalid range string");
+		throw new ApplicationException("invalid range string:" + range);
 	}
 
-	@SuppressWarnings("resource")
-	public boolean isOfficeXml() {
+	private int getExcelType() {
+		InputStream inp = null;
 		try {
-			InputStream inp = new FileInputStream(file);
+			inp = new FileInputStream(file);
 			if (!inp.markSupported()) {
 				inp = new PushbackInputStream(inp, 8);
 			}
 
 			if (DocumentFactoryHelper.hasOOXMLHeader(inp)) {
-				return true;
+				return 1;
 			}
 
-			return false;
+			byte[] header8 = IOUtils.peekFirst8Bytes(inp);
+
+			// Try to create
+			if (NPOIFSFileSystem.hasPOIFSHeader(header8)) {
+				try (NPOIFSFileSystem fs = new NPOIFSFileSystem(inp)) {
+					DirectoryNode root = fs.getRoot();
+
+					// Encrypted OOXML files go inside OLE2 containers, is this one?
+					if (root.hasEntry(Decryptor.DEFAULT_POIFS_ENTRY)) {
+						return 1;
+					}
+				}
+			}
+
+			return 0;
 		} catch (IOException e) {
 			throw new ApplicationException(e);
+		} finally {
+			org.apache.commons.io.IOUtils.closeQuietly(inp);
 		}
+	}
+
+	public int getType() {
+		if (type == -1) {
+			type = getExcelType();
+		}
+		return type;
 	}
 
 }

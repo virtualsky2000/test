@@ -47,9 +47,11 @@ public class WorkbookReader extends AbstractWorkbookReader {
 	}
 
 	public void load() {
-		if (isOfficeXml()) {
+		if (getType() == 1) {
+			// excel2007以降
 			workbook = XSSFWorkbookReader.load(file, lstSheetName, userMode).workbook;
 		} else {
+			// excel2003
 			workbook = HSSFWorkbookReader.load(file, lstSheetName, userMode).workbook;
 		}
 	}
