@@ -49,44 +49,69 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 	private AttributesImpl curAttributes = new AttributesImpl();
 
 	public static XSSFWorkbookReader load(String fileName) {
-		return load(FileUtils.getFile(fileName), null, 0);
+		return load(FileUtils.getFile(fileName), null, null, 0);
 	}
 
 	public static XSSFWorkbookReader load(String fileName, int userMode) {
-		return load(FileUtils.getFile(fileName), null, userMode);
+		return load(FileUtils.getFile(fileName), null, null, userMode);
 	}
 
 	public static XSSFWorkbookReader load(String fileName, List<String> lstSheetName) {
-		return load(FileUtils.getFile(fileName), lstSheetName, 0);
+		return load(FileUtils.getFile(fileName), lstSheetName, null, 0);
 	}
 
 	public static XSSFWorkbookReader load(String fileName, List<String> lstSheetName, int userMode) {
-		return load(FileUtils.getFile(fileName), lstSheetName, userMode);
+		return load(FileUtils.getFile(fileName), lstSheetName, null, userMode);
+	}
+
+	public static XSSFWorkbookReader load(String fileName, Map<String, List<String>> mapRange) {
+		return load(FileUtils.getFile(fileName), null, mapRange, 0);
+	}
+
+	public static XSSFWorkbookReader load(String fileName, Map<String, List<String>> mapRange, int userMode) {
+		return load(FileUtils.getFile(fileName), null, mapRange, userMode);
 	}
 
 	public static XSSFWorkbookReader load(File file) {
-		return load(file, null, 0);
+		return load(file, null, null, 0);
 	}
 
 	public static XSSFWorkbookReader load(File file, int userMode) {
-		return load(file, null, userMode);
+		return load(file, null, null, userMode);
 	}
 
 	public static XSSFWorkbookReader load(File file, List<String> lstSheetName) {
-		return load(file, lstSheetName, 0);
+		return load(file, lstSheetName, null, 0);
 	}
 
 	public static XSSFWorkbookReader load(File file, List<String> lstSheetName, int userMode) {
-		XSSFWorkbookReader reader = new XSSFWorkbookReader(file, lstSheetName, userMode);
+		return load(file, lstSheetName, null, userMode);
+	}
+
+	public static XSSFWorkbookReader load(File file, Map<String, List<String>> mapRange) {
+		return load(file, null, mapRange, 0);
+	}
+
+	public static XSSFWorkbookReader load(File file, Map<String, List<String>> mapRange, int userMode) {
+		return load(file, null, mapRange, userMode);
+	}
+
+	public static XSSFWorkbookReader load(File file, List<String> lstSheetName, Map<String, List<String>> mapRange,
+			int userMode) {
+		XSSFWorkbookReader reader = new XSSFWorkbookReader(file, lstSheetName, mapRange, userMode);
 		reader.load();
 
 		return reader;
 	}
 
-	public XSSFWorkbookReader(File file, List<String> lstSheetName, int userMode) {
+	public XSSFWorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
 		this.file = file;
 		this.userMode = userMode;
 		this.lstSheetName = lstSheetName;
+//		if (lstSheetName != null) {
+//			count = lstSheetName.size();
+//		}
+		setRange(mapRange);
 	}
 
 	public void load() {

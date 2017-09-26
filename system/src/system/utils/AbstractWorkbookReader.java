@@ -7,11 +7,16 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.poi.hssf.record.CellRecord;
+import org.apache.poi.hssf.record.RowRecord;
 import org.apache.poi.poifs.crypt.Decryptor;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.DocumentFactoryHelper;
@@ -38,6 +43,14 @@ public abstract class AbstractWorkbookReader {
 	protected int userMode;
 
 	protected List<String> lstSheetName;
+
+	protected Map<String, List<String>> mapRange;
+
+	protected Map<String, List<int[]>> mapSheetRange;
+
+	protected List<int[]> lstCurSheetRange;
+
+	protected boolean ignoreSheet = false;
 
 	private int type = -1;
 
@@ -367,6 +380,46 @@ public abstract class AbstractWorkbookReader {
 			type = getExcelType();
 		}
 		return type;
+	}
+
+	protected void setRange(Map<String, List<String>> mapRange) {
+		this.mapRange = mapRange;
+		if (mapRange != null) {
+			lstSheetName = new ArrayList<>();
+			mapSheetRange = new HashMap<>();
+			for (Entry<String, List<String>> entry : mapRange.entrySet()) {
+				List<String> _lstRange = entry.getValue();
+				List<int[]> lstRange = new ArrayList<>();
+				for (String range : _lstRange) {
+					Rect rect = getRect(range);
+					int[] x = new int[] {rect.x.row, rect.x.col, rect.y.row, rect.y.col};
+					lstRange.add(x);
+				}
+				mapSheetRange.put(entry.getKey(), lstRange);
+				lstSheetName.add(entry.getKey());
+			}
+		}
+	}
+
+	protected boolean inRow(RowRecord record, List<int[]> lstRange) {
+		int row = record.getRowNumber();
+		for (int[] x : lstRange) {
+			if (x[0] <= row && row <= x[2]) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected boolean inCell(CellRecord record, List<int[]> lstRange) {
+		int row = record.getRow();
+		int col = record.getColumn();
+		for (int[] x : lstRange) {
+			if (x[0] <= row && row <= x[2] && x[1] <= col && col <= x[3]) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
