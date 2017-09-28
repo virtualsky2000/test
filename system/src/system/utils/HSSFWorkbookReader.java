@@ -55,7 +55,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 
 	private List<String> sheetNames = new ArrayList<>();
 
-	private int count;
+	private boolean ignoreSheet = false;
 
 	public static HSSFWorkbookReader load(String fileName) {
 		return load(FileUtils.getFile(fileName), null, null, 0);
@@ -114,17 +114,12 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 	}
 
 	public HSSFWorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
-		this.file = file;
-		this.userMode = userMode;
-		this.lstSheetName = lstSheetName;
-		setRange(mapRange);
-		if (lstSheetName != null) {
-			count = lstSheetName.size();
-		}
+		init(file, lstSheetName, mapRange, userMode);
 	}
 
 	public void load() {
 		try {
+			log.debug("load workbook start.");
 			if (userMode == 0) {
 				InputStream inp = new FileInputStream(file);
 				if (!inp.markSupported()) {
@@ -142,6 +137,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 				POIFSFileSystem poifs = new POIFSFileSystem(file);
 				factory.abortableProcessWorkbookEvents(request, poifs);
 			}
+			log.debug("load workbook end.");
 		} catch (HSSFUserException | IOException e) {
 			throw new ApplicationException(e);
 		}
@@ -197,14 +193,14 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 
 		if (curSheetName != null) {
 			log.debug("in processEOFRecord {}", curSheetName);
-			count--;
+			sheetCount--;
 			curSheet = null;
 			curSheetName = null;
 		} else {
 			log.debug("in processEOFRecord");
 		}
 
-		if (lstSheetName != null && count == 0) {
+		if (lstSheetName != null && sheetCount == 0) {
 			return -1;
 		}
 		return 0;
@@ -229,7 +225,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 
 		if (mapSheetRange != null) {
 			lstCurSheetRange = mapSheetRange.get(curSheetName);
-			if (!inRow(record, lstCurSheetRange)) {
+			if (!inRow(lstCurSheetRange, record)) {
 				return 0;
 			}
 		}
@@ -240,7 +236,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 	}
 
 	protected short processLabelSSTRecord(LabelSSTRecord record) {
-		if (ignoreSheet || !inCell(record, lstCurSheetRange)) {
+		if (ignoreSheet || lstCurSheetRange == null || !inCell(lstCurSheetRange, record)) {
 			return 0;
 		}
 
@@ -252,7 +248,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 	}
 
 	protected short processNumberRecord(NumberRecord record) {
-		if (ignoreSheet || !inCell(record, lstCurSheetRange)) {
+		if (ignoreSheet || lstCurSheetRange == null || !inCell(lstCurSheetRange, record)) {
 			return 0;
 		}
 
@@ -277,7 +273,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 	}
 
 	protected short processFormulaRecord(FormulaRecord record) {
-		if (ignoreSheet || !inCell(record, lstCurSheetRange)) {
+		if (ignoreSheet || lstCurSheetRange == null || !inCell(lstCurSheetRange, record)) {
 			return 0;
 		}
 
@@ -292,7 +288,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 	}
 
 	protected short processStringRecord(StringRecord record) {
-		if (ignoreSheet || (previousSid == FormulaRecord.sid && !inCell(stringFormulaRecord, lstCurSheetRange))) {
+		if (ignoreSheet || lstCurSheetRange == null || (previousSid == FormulaRecord.sid && !inCell(lstCurSheetRange, stringFormulaRecord))) {
 			return 0;
 		}
 

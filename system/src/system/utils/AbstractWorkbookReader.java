@@ -50,7 +50,7 @@ public abstract class AbstractWorkbookReader {
 
 	protected List<int[]> lstCurSheetRange;
 
-	protected boolean ignoreSheet = false;
+	protected int sheetCount;
 
 	private int type = -1;
 
@@ -401,8 +401,11 @@ public abstract class AbstractWorkbookReader {
 		}
 	}
 
-	protected boolean inRow(RowRecord record, List<int[]> lstRange) {
-		int row = record.getRowNumber();
+	protected boolean inRow(List<int[]> lstRange, RowRecord record) {
+		return inRow(lstRange, record.getRowNumber());
+	}
+
+	protected boolean inRow(List<int[]> lstRange, int row) {
 		for (int[] x : lstRange) {
 			if (x[0] <= row && row <= x[2]) {
 				return true;
@@ -411,15 +414,27 @@ public abstract class AbstractWorkbookReader {
 		return false;
 	}
 
-	protected boolean inCell(CellRecord record, List<int[]> lstRange) {
-		int row = record.getRow();
-		int col = record.getColumn();
+	protected boolean inCell(List<int[]> lstRange, CellRecord record) {
+		return inCell(lstRange, record.getRow(), record.getColumn());
+	}
+
+	protected boolean inCell(List<int[]> lstRange, int row, int col) {
 		for (int[] x : lstRange) {
 			if (x[0] <= row && row <= x[2] && x[1] <= col && col <= x[3]) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	protected void init(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
+		this.file = file;
+		this.userMode = userMode;
+		this.lstSheetName = lstSheetName;
+		setRange(mapRange);
+		if (this.lstSheetName != null) {
+			sheetCount = this.lstSheetName.size();
+		}
 	}
 
 }

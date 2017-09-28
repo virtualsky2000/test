@@ -1,9 +1,7 @@
 package system.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.PushbackInputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +45,12 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 	private String curValue;
 
 	private AttributesImpl curAttributes = new AttributesImpl();
+
+	private int curRowIndex;
+
+	private boolean loadRow = true;
+
+	private boolean loadCell = true;
 
 	public static XSSFWorkbookReader load(String fileName) {
 		return load(FileUtils.getFile(fileName), null, null, 0);
@@ -105,60 +109,96 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 	}
 
 	public XSSFWorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
-		this.file = file;
-		this.userMode = userMode;
-		this.lstSheetName = lstSheetName;
-//		if (lstSheetName != null) {
-//			count = lstSheetName.size();
-//		}
-		setRange(mapRange);
+		init(file, lstSheetName, mapRange, userMode);
 	}
 
 	public void load() {
 		try {
+			log.debug("load workbook start.");
+			OPCPackage pkg = OPCPackage.open(file, PackageAccess.READ);
 			if (userMode == 0) {
-				InputStream inp = new FileInputStream(file);
-				if (!inp.markSupported()) {
-					inp = new PushbackInputStream(inp, 8);
-				}
 				if (lstSheetName == null) {
-					workbook = new XSSFWorkbook(inp);
+					workbook = new XSSFWorkbook(pkg);
 				} else {
-					workbook = new XSSFWorkbook(inp) {
+					workbook = new XSSFWorkbook(pkg) {
 
 						@Override
 						public void parseSheet(Map<String, XSSFSheet> shIdMap, CTSheet ctSheet) {
-							if (XSSFWorkbookReader.this.lstSheetName.contains(ctSheet.getName())) {
+							if (sheetCount > 0 && XSSFWorkbookReader.this.lstSheetName.contains(ctSheet.getName())) {
+								log.debug("load Sheet start: {}", ctSheet.getName());
 								super.parseSheet(shIdMap, ctSheet);
+								log.debug("load Sheet end: {}", ctSheet.getName());
+								sheetCount--;
 							}
 						}
 
 					};
 				}
+
 			} else {
-				try (OPCPackage pkg = OPCPackage.open(file, PackageAccess.READ)) {
-					workbook = new XSSFWorkbook();
+				workbook = new XSSFWorkbook();
 
-					XSSFReader reader = new XSSFReader(pkg);
-					sst = reader.getSharedStringsTable();
-					SheetIterator sheetIterator = (SheetIterator) reader.getSheetsData();
+				XSSFReader reader = new XSSFReader(pkg);
+				sst = reader.getSharedStringsTable();
+				SheetIterator sheetIterator = (SheetIterator) reader.getSheetsData();
 
-					while (sheetIterator.hasNext()) {
-						InputStream is = sheetIterator.next();
-						String sheetName = sheetIterator.getSheetName();
-						if (lstSheetName == null || lstSheetName.contains(sheetName)) {
-							curSheet = (XSSFSheet) workbook.createSheet(sheetName);
-							XMLReader parser = XMLReaderFactory.createXMLReader();
-							ContentHandler handler = new SheetHandler();
-							parser.setContentHandler(handler);
-							parser.parse(new InputSource(is));
-							is.close();
+				while (sheetIterator.hasNext()) {
+					InputStream is = sheetIterator.next();
+					String sheetName = sheetIterator.getSheetName();
+					if (lstSheetName == null || lstSheetName.contains(sheetName)) {
+						curSheet = (XSSFSheet) workbook.createSheet(sheetName);
+						log.debug("load Sheet start: {}", sheetName);
+						if (mapSheetRange != null) {
+							lstCurSheetRange = mapSheetRange.get(sheetName);
+						}
+						XMLReader parser = XMLReaderFactory.createXMLReader();
+						ContentHandler handler = new SheetHandler();
+						parser.setContentHandler(handler);
+						parser.parse(new InputSource(is));
+						is.close();
+						log.debug("load Sheet end: {}", sheetName);
+						if (lstSheetName != null) {
+							sheetCount--;
+							if (sheetCount == 0) {
+								break;
+							}
 						}
 					}
 				}
 			}
+
+			pkg.revert();
+			log.debug("load workbook end.");
 		} catch (Exception e) {
 			throw new ApplicationException("Excelファイル読込が失敗しました。", e);
+		}
+	}
+
+	protected void startRow(Attributes attributes) {
+		int rownum = Integer.parseInt(attributes.getValue("r")) - 1;
+		if (lstCurSheetRange != null) {
+			loadRow = inRow(lstCurSheetRange, rownum);
+		}
+		if (loadRow) {
+			log.debug("load row : {}", rownum);
+			curRow = curSheet.createRow(rownum);
+			curRowIndex = rownum;
+			curCell = null;
+		}
+	}
+
+	protected void startCell(Attributes attributes) {
+		int columnIndex = getColumnIndex(attributes.getValue("r"));
+		if (lstCurSheetRange != null) {
+			loadCell = inCell(lstCurSheetRange, curRowIndex, columnIndex);
+		}
+		if (loadCell) {
+			log.debug("load cell : {}", columnIndex);
+			curCell = curRow.createCell(columnIndex);
+			curAttributes.clear();
+			curAttributes.setAttributes(attributes);
+		} else {
+			curCell = null;
 		}
 	}
 
@@ -167,18 +207,10 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 
 		if (qName.equals("row")) {
 			// row
-			int rownum = Integer.parseInt(attributes.getValue("r"));
-			curRow = curSheet.createRow(rownum - 1);
-			curCell = null;
+			startRow(attributes);
 		} else if (qName.equals("c")) {
 			// cell
-			int columnIndex = getColumnIndex(attributes.getValue("r"));
-			curCell = curRow.createCell(columnIndex);
-			curAttributes.clear();
-			curAttributes.setAttributes(attributes);
-		} else {
-			// log.info("in startElement... qName=({}), localName=({})", qName,
-			// localName);
+			startCell(attributes);
 		}
 	}
 
@@ -188,13 +220,13 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 			switch (qName) {
 			case "v":
 				if (t != null) {
-					log.info("in endElement... t=({})", t);
+					// log.info("in endElement... t=({})", t);
 					switch (t) {
 					case "s":
 						curCell.setCellType(CellType.STRING);
 						int index = Integer.parseInt(curValue);
 						curCell.setCellValue(sst.getEntryAt(index).getT());
-						log.info(sst.getEntryAt(index).getT());
+						// log.info(sst.getEntryAt(index).getT());
 						break;
 					case "str":
 						curCell.setCellType(CellType.STRING);
@@ -211,13 +243,13 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 						curCell.setCellValue("1".equals(curValue));
 						break;
 					default:
-						log.error("in endElement... t=({})", t);
+						// log.error("in endElement... t=({})", t);
 						break;
 					}
 
 				} else {
 					String s = curAttributes.getValue("s");
-					log.info("in endElement... s=({}) v=({})", s, curValue);
+					// log.info("in endElement... s=({}) v=({})", s, curValue);
 
 					if (s == null) {
 						curCell.setCellType(CellType.STRING);
@@ -266,7 +298,7 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 				}
 				break;
 			default:
-				log.debug("in endElement... qName=({})", qName);
+//				log.debug("in endElement... qName=({})", qName);
 				break;
 			}
 		}
@@ -291,7 +323,7 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 			if (level == 2) {
 				flag = "sheetData".equals(qName);
 			}
-			if (flag) {
+			if (flag && loadRow && loadCell) {
 				self.startElement(uri, localName, qName, attributes);
 			}
 		}
@@ -299,14 +331,19 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 		@Override
 		public void endElement(String uri, String localName, String qName) throws SAXException {
 			level--;
-			if (flag) {
+			if (flag && loadRow && loadCell) {
 				self.endElement(uri, localName, qName);
+			}
+			if (level == 2 && qName.equals("row")) {
+				loadRow = true;
+			} else if (level == 3 && qName.equals("c")) {
+				loadCell = true;
 			}
 		}
 
 		@Override
 		public void characters(char[] ch, int start, int length) throws SAXException {
-			if (flag) {
+			if (flag && loadRow && loadCell) {
 				self.characters(ch, start, length);
 			}
 		}
