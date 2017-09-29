@@ -1,10 +1,7 @@
-package system.utils;
+package system.excel;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +31,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import system.exception.ApplicationException;
 import system.logging.LogManager;
 import system.logging.Logger;
+import system.utils.FileUtils;
 
 public class HSSFWorkbookReader extends AbstractWorkbookReader {
 
@@ -121,11 +119,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 		try {
 			log.debug("load workbook start.");
 			if (userMode == 0) {
-				InputStream inp = new FileInputStream(file);
-				if (!inp.markSupported()) {
-					inp = new PushbackInputStream(inp, 8);
-				}
-				NPOIFSFileSystem fs = new NPOIFSFileSystem(inp);
+				NPOIFSFileSystem fs = new NPOIFSFileSystem(file, true);
 				workbook = new HSSFWorkbook(fs);
 			} else {
 				workbook = new HSSFWorkbook();
@@ -134,7 +128,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 				addListener(request);
 
 				HSSFEventFactory factory = new HSSFEventFactory();
-				POIFSFileSystem poifs = new POIFSFileSystem(file);
+				POIFSFileSystem poifs = new POIFSFileSystem(file, true);
 				factory.abortableProcessWorkbookEvents(request, poifs);
 			}
 			log.debug("load workbook end.");
@@ -230,7 +224,7 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 			}
 		}
 
-		log.debug("in processRowRecord " + record.getRowNumber());
+		log.debug("in processRowRecord {}", record.getRowNumber());
 		curSheet.createRow(record.getRowNumber());
 		return 0;
 	}
@@ -288,7 +282,8 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 	}
 
 	protected short processStringRecord(StringRecord record) {
-		if (ignoreSheet || lstCurSheetRange == null || (previousSid == FormulaRecord.sid && !inCell(lstCurSheetRange, stringFormulaRecord))) {
+		if (ignoreSheet || lstCurSheetRange == null
+				|| (previousSid == FormulaRecord.sid && !inCell(lstCurSheetRange, stringFormulaRecord))) {
 			return 0;
 		}
 
@@ -305,10 +300,9 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 	}
 
 	protected short abortableProcessRecord(Record record) throws HSSFUserException {
-		if (curSheetName != null) {
-			if (lstSheetName != null && !lstSheetName.contains(curSheetName) && record.getSid() != BOFRecord.sid) {
-				return 0;
-			}
+		if (curSheetName != null && lstSheetName != null && !lstSheetName.contains(curSheetName)
+				&& record.getSid() != BOFRecord.sid) {
+			return 0;
 		}
 
 		short ret = 0;
