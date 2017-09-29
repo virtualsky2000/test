@@ -13,7 +13,7 @@ public class Main {
 
         Script script = new Script();
 
-        script.run("script/test2.xml", "chrome");
+        script.run("script/test.xml", "chrome");
 
     }
 

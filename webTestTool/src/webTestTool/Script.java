@@ -3,6 +3,7 @@ package webTestTool;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import system.exception.ApplicationException;
 import system.logging.LogManager;
 import system.logging.Logger;
 import system.utils.FileUtils;
@@ -36,6 +38,9 @@ import system.xml.XmlNode;
 import system.xml.XmlStreamReader;
 
 public class Script {
+
+    private static final List<String> lstKey = Arrays.asList("setText", "click", "waitFor", "waitForPageLoad",
+            "openWindow", "saveScreen", "start", "check");
 
     private static final Logger log = LogManager.getLogger(Script.class);
 
@@ -59,12 +64,12 @@ public class Script {
         try {
             XmlStreamReader reader = XmlStreamReader.load(fileName);
             XmlNode node = XmlNode.getNode(reader.getRootNode(), "action");
-            List<XmlNode> lstAction = node.getLstNode();
+            List<XmlNode> lstNode = node.getLstNode();
 
-            for (int i = 0; i < lstAction.size(); i++) {
-                action = lstAction.get(i);
-                List<XmlNode> lstNode = action.getLstNode();
-                if (lstNode == null) {
+            for (int i = 0, len = lstNode.size(); i < len; i++) {
+                action = lstNode.get(i);
+                List<XmlNode> subNodes = action.getLstNode();
+                if (subNodes == null && !lstKey.contains(action.getName())) {
                     action.setLstNode(replaceAction(action));
                     mapReplace.put(action, true);
                 } else {
@@ -74,13 +79,9 @@ public class Script {
 
             log.info("start...");
 
-            for (int i = 0; i < lstAction.size(); i++) {
-                action = lstAction.get(i);
-                log.info("runAction: {}", showNode(action));
-                List<XmlNode> lstNode = action.getLstNode();
-                for (XmlNode script : lstNode) {
-                    runScript(script);
-                }
+            for (int i = 0, len = lstNode.size(); i < len; i++) {
+                action = lstNode.get(i);
+                runNode(action);
             }
 
             log.info("end...");
@@ -94,16 +95,59 @@ public class Script {
         }
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             // no op
         }
 
-        if (curDriver != null) {
-            curDriver.quit();
-        }
+        //        if (curDriver != null) {
+        //            curDriver.quit();
+        //        }
 
         return true;
+    }
+
+    protected void runNode(XmlNode action) {
+        if (!action.getName().equals("loop")) {
+            log.info("runNode: {}", showNode(action));
+            List<XmlNode> lstNode = action.getLstNode();
+            if (lstNode != null) {
+                for (XmlNode script : lstNode) {
+                    runScript(script);
+                }
+            } else {
+                runScript(action);
+            }
+        } else {
+            runLoop(action);
+        }
+    }
+
+    protected void runLoop(XmlNode loop) {
+        String strCount = loop.getAttributeValue("count");
+        int count = -1;
+        if (strCount != null) {
+            count = Integer.parseInt(strCount);
+        }
+
+        if (count != -1) {
+            for (int i = 1; i <= count; i++) {
+                log.info("runLoop: {}", i);
+                List<XmlNode> lstNode = loop.getLstNode();
+                for (XmlNode script : lstNode) {
+                    runScript(script);
+                }
+            }
+        } else {
+            for (int i = 1;; i++) {
+                log.info("runLoop: {}", i);
+                List<XmlNode> lstNode = loop.getLstNode();
+                for (XmlNode script : lstNode) {
+                    runScript(script);
+                }
+            }
+        }
+
     }
 
     private void loadCommonAction() {
@@ -134,7 +178,7 @@ public class Script {
             for (XmlNode node : subNodes) {
                 if (node.getName().equals(actionName) && node.getLstAttribute() == null) {
                     lstNode = node.getLstNode();
-                    action.setComment(node.getComment());
+                    //                    action.setComment(node.getComment());
                     break;
                 }
             }
@@ -159,7 +203,7 @@ public class Script {
                 String attrValue = attr.getValue();
                 Matcher m = pParam.matcher(attrValue);
                 if (m.find()) {
-                    for (int i = 1; i <= m.groupCount(); i++) {
+                    for (int i = 1, len = m.groupCount(); i <= len; i++) {
                         String replacement = action.getAttributeValue(m.group(i));
                         attrValue = attrValue.replaceAll("\\$\\{" + m.group(i) + "\\}", replacement);
                     }
@@ -171,7 +215,7 @@ public class Script {
 
     public String showNode(XmlNode script) {
         StringBuilder sb = new StringBuilder();
-        sb.append(script.getComment());
+        //        sb.append(script.getComment());
         if (sb.length() > 0) {
             sb.append(" ");
         }
@@ -257,6 +301,7 @@ public class Script {
         wait.until(ExpectedConditions.elementToBeClickable(by));
 
         WebElement element = curDriver.findElement(by);
+        wait.until(ExpectedConditions.elementToBeClickable(by));
         element.click();
     }
 
@@ -295,23 +340,25 @@ public class Script {
                         WebElement nowLoading = wdriver.findElement(By.id("nowLoading"));
 
                         if (nowLoading != null && "display: none;".equals(nowLoading.getAttribute("style"))) {
-                            if (times == 0) {
-                                times = System.currentTimeMillis();
-                            } else if (System.currentTimeMillis() - times >= 1000) {
-                                return true;
-                            }
-                            return false;
+                            return true;
+//                            if (times == 0) {
+//                                times = System.currentTimeMillis();
+//                            } else if (System.currentTimeMillis() - times >= 1000) {
+//                                return true;
+//                            }
+//                            return false;
                         } else {
                             return false;
                         }
                     } catch (Exception e) {
                         if ("complete".equals(getReadyState())) {
-                            if (times == 0) {
-                                times = System.currentTimeMillis();
-                            } else if (System.currentTimeMillis() - times >= 1000) {
-                                return true;
-                            }
-                            return false;
+                            return true;
+//                            if (times == 0) {
+//                                times = System.currentTimeMillis();
+//                            } else if (System.currentTimeMillis() - times >= 1000) {
+//                                return true;
+//                            }
+//                            return false;
                         } else {
                             return false;
                         }
@@ -397,7 +444,7 @@ public class Script {
             FileUtils.forceMkdirParent(file);
             ImageIO.write(ImageIO.read(img), "jpeg", file);
         } catch (IOException e) {
-            e.printStackTrace();
+        	throw new ApplicationException(e);
         }
     }
 
