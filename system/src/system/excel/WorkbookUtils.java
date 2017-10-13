@@ -13,11 +13,11 @@ import system.exception.ApplicationException;
 
 public class WorkbookUtils {
 
-	protected static final String DATE_YYYYMD = "1";
+    protected static final String DATE_YYYYMD = "1";
 
-	protected static final String NUMERIC = "2";
+    protected static final String NUMERIC = "2";
 
-	protected static final String DATE_YYYYMMDD = "3";
+    protected static final String DATE_YYYYMMDD = "3";
 
     private static DateFormat dfDay = new SimpleDateFormat("yyyy/M/d");
 
@@ -48,7 +48,6 @@ public class WorkbookUtils {
         }
     }
 
-
     public static int getColumnIndex(String str) {
         int col = 0;
         for (int i = 0, len = str.length(); i < len; i++) {
@@ -72,12 +71,12 @@ public class WorkbookUtils {
 
         switch (type) {
         case DATE_YYYYMMDD:
-        	day = dfDay2.format(date);
-        	break;
+            day = dfDay2.format(date);
+            break;
         case DATE_YYYYMD:
         case "8":
-        	day = dfDay.format(date);
-        	break;
+            day = dfDay.format(date);
+            break;
         }
 
         return day;

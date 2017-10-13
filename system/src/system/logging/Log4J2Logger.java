@@ -157,6 +157,7 @@ public class Log4J2Logger implements Logger {
     public void error(String paramString, Throwable paramThrowable) {
         logger.error(paramString, paramThrowable);
     }
+
     @Override
     public boolean isFatalEnabled() {
         return logger.isFatalEnabled();

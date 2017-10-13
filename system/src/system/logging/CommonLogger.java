@@ -1,6 +1,6 @@
 package system.logging;
 
-public class CommonLogger implements Logger  {
+public class CommonLogger implements Logger {
 
     private transient org.apache.commons.logging.Log logger = null;
 

@@ -35,12 +35,12 @@ public class ScriptException extends ApplicationException {
             Matcher m = pParam.matcher(e.getMessage());
             if (m.find()) {
                 String msg = "htmlエレメント[" + m.group(1) + "=\"" + m.group(2) + "\"]が見つかりませんでした。";
-//                switch (script.getName()) {
-//                case "setText":
-//                    String js = "$(input[type='text'])";
-//                    msg = (String) ((JavascriptExecutor) driver).executeScript(js);
-//                    break;
-//                }
+                //                switch (script.getName()) {
+                //                case "setText":
+                //                    String js = "$(input[type='text'])";
+                //                    msg = (String) ((JavascriptExecutor) driver).executeScript(js);
+                //                    break;
+                //                }
 
                 setErrorMessage(msg);
             }

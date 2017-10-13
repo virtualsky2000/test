@@ -96,7 +96,7 @@ public abstract class AbstractScript {
     }
 
     protected void runNode(XmlNode action) {
-    	curAction = action;
+        curAction = action;
         if (!action.getName().equals("loop")) {
             log.info("runNode: {}", showNode(action));
             List<XmlNode> lstNode = action.getLstNode();
@@ -341,7 +341,7 @@ public abstract class AbstractScript {
             FileUtils.forceMkdirParent(file);
             ImageIO.write(ImageIO.read(img), "jpeg", file);
         } catch (IOException e) {
-        	throw new ScriptException(e, curDriver, script);
+            throw new ScriptException(e, curDriver, script);
         }
     }
 

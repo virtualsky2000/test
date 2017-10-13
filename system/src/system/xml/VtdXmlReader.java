@@ -35,7 +35,7 @@ public class VtdXmlReader extends AbstractReader {
     }
 
     protected VtdXmlReader(File file, Charset charset) {
-    	super(file, charset);
+        super(file, charset);
     }
 
     public void load() {

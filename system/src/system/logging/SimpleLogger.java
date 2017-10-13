@@ -4,7 +4,7 @@ import java.io.PrintStream;
 
 public class SimpleLogger implements Logger {
 
-    private static final String[] strMsg = {"[TRACE] ", "[DEBUG] ", "[INFO] ", "[WARN] ", "[ERROR] ", "[FATAL] "};
+    private static final String[] strMsg = { "[TRACE] ", "[DEBUG] ", "[INFO] ", "[WARN] ", "[ERROR] ", "[FATAL] " };
 
     @Override
     public boolean isTraceEnabled() {

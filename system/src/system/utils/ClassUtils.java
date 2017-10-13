@@ -22,7 +22,7 @@ public class ClassUtils {
     }
 
     @SuppressWarnings("unchecked")
-	public static <T> T cast(Object obj) {
+    public static <T> T cast(Object obj) {
         return (T) obj;
     }
 

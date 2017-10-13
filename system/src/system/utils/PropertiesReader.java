@@ -49,7 +49,7 @@ public class PropertiesReader extends AbstractReader {
     }
 
     protected PropertiesReader(File file, Charset charset, boolean sort) {
-    	super(file, charset);
+        super(file, charset);
         this.sort = sort;
 
         if (sort) {

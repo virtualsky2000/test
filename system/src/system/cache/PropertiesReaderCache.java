@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import system.utils.FileUtils;
 import system.utils.PropertiesReader;
 
-public class PropertiesReaderCache extends PropertiesReader  {
+public class PropertiesReaderCache extends PropertiesReader {
 
     private static final Map<String, PropertiesReaderCache> mapCache = new ConcurrentHashMap<>();
 

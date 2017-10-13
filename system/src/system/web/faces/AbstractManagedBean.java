@@ -53,7 +53,7 @@ public abstract class AbstractManagedBean {
     @PostConstruct
     private void postConstruct() {
         if (log == null) {
-        	log = LogManager.getLogger(this.getClass());
+            log = LogManager.getLogger(this.getClass());
         }
         fc = FacesContext.getCurrentInstance();
         exContext = fc.getExternalContext();
