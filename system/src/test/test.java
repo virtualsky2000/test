@@ -1,23 +1,18 @@
 package test;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.ximpleware.AutoPilot;
-import com.ximpleware.VTDGen;
-import com.ximpleware.VTDNav;
-
+import system.cache.ReaderCache;
+import system.excel.WorkbookReader;
 import system.logging.LogManager;
 import system.logging.Logger;
-import system.utils.FileUtils;
-import system.xml.XmlAttribute;
-import system.xml.XmlNode;
+import system.xml.XmlReader;
 
 public class test {
 
@@ -29,131 +24,86 @@ public class test {
             //            log.error("error", "a", "b", "c");
             //            log.info(String.format("%d + %d = %d", 1, 2, 3));
 
-            //            XmlReader reader = XmlReader.load("log4j2.xml");
+//        	XmlReader reader = new XmlReader(FileUtils.getFile("log4j2.xml"), Charset.defaultCharset());
+
+//                        XmlReader reader = XmlReader.load("log4j2.xml");
             ////            XmlReaderCache reader = XmlReaderCache.load("log4j2.xml");
             //            log.info(reader.getNode("Configuration/Appenders/test").getValue());
             //            log.info(reader.getNode("Configuration/Appenders/Console").getAttributeValue("target"));
             //            log.info(reader.getNode("Configuration/Loggers/Root").getAttributeValue("level"));
             //            log.info(reader.getNode("Configuration/Appenders/Console").getAttributeValue("target"));
 
-            int count = 0;
+        	ReaderCache<XmlReader> reader1 = ReaderCache.load("log4j2.xml", XmlReader.class);
 
-            try {
-                File file = FileUtils.getFile("test.xml");
-                FileInputStream fis = new FileInputStream(file);
-                byte[] buf = new byte[(int) file.length()];
-                fis.read(buf);
+        	String x = "0";
+            byte[] value = x.getBytes();
+            value[0] += 10;
+            x = new String(value);
+        	log.info("0".getBytes()[0]);
+        	log.info("1".getBytes()[0]);
+        	log.info("2".getBytes()[0]);
+        	log.info("9".getBytes()[0]);
 
-                VTDGen vg = new VTDGen();
+        	log.info("A".getBytes()[0]);
+        	log.info("J".getBytes()[0]);
 
-                vg.setDoc(buf);
-                vg.parse(false);
-                VTDNav vn = vg.getNav();
+        	log.info("   ".compareTo("000"));
 
-                AutoPilot ap = new AutoPilot(vn);
+//        	FastWorkbookReader reader = FastWorkbookReader.load("C:/Users/TN0Y03/Desktop/自動作成ツール/test.xlsx");
 
-                ap.selectElement("*");
 
-                XmlNode root;
+        	System.setProperty("org.apache.poi.util.POILogger", "org.apache.poi.util.CommonsLogger" );
 
-                int curDepth = 0;
-                int prevDepth = 0;
-                XmlNode parent = null;
-                XmlNode curNode = null;
-                XmlNode node = null;
-                String tagName;
+        	long start, end;
+        	WorkbookReader reader;
 
-                while (ap.iterate()) {
-                    curDepth = vn.getCurrentDepth();
-                    tagName = vn.toString(vn.getCurrentIndex());
+//            start = System.currentTimeMillis();
+//            reader = WorkbookReader.load("C:/Users/TN0Y03/Desktop/自動作成ツール/test1.xls", "リソース名");
+//
+//            end = System.currentTimeMillis();
+//            log.info("xls {}ms", end - start);
 
-                    if (prevDepth <= curDepth) {
-                        List<XmlAttribute> lstAttributes = null;
-                        int attrCount = vn.getAttrCount();
-                        if (attrCount > 0) {
-                            lstAttributes = new ArrayList<>(vn.getAttrCount());
-                            int i = vn.getCurrentIndex() + 1;
-                            for (;;) {
-                                if (vn.hasAttr(vn.toString(i))) {
-                                    lstAttributes.add(new XmlAttribute(vn.toString(i), vn.toString(i + 1)));
-                                    i += 2;
-                                    attrCount--;
-                                    if (attrCount == 0) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+//        	WorkbookFactory.create(new File("d:/domain1.zip"));
 
-                        if (prevDepth < curDepth) {
-                            parent = curNode;
-                        }
-                        node = new XmlNode(parent, tagName, lstAttributes);
-                        curNode = node;
+            start = System.currentTimeMillis();
+//            reader = WorkbookReader.load("C:/Users/TN0Y03/Desktop/自動作成ツール/test1.xlsx");
+//            reader = WorkbookReader.load("C:/Users/TN0Y03/Desktop/自動作成ツール/test2.xlsx", Arrays.asList("Sheet1"));
+//            reader = WorkbookReader.load("C:/Users/TN0Y03/Desktop/自動作成ツール/test1.xls", Arrays.asList("Sheet1", "Sheet3"), 1);
 
-                        if (curDepth == 0) {
-                            root = node;
-                            parent = root;
-                        }
-                    } else {
-                        parent = parent.getParent();
-                    }
+            Map<String, List<String>> mapRange = new HashMap<>();
 
-                    int t = vn.getText();
-                    if (t != -1) {
-                        String value = vn.toNormalizedString(t).trim();
-                        curNode.setValue(value);
-                    }
+//            mapRange.put("Sheet1", Arrays.asList("A1:C3"));
+//
+//            reader = WorkbookReader.load("C:/Users/TN0Y03/Desktop/自動作成ツール/test1.xls", mapRange, 1);
+//
+//            log.info("Sheet1: -------------------------------");
+//            reader.readTextValue(reader.getSheet("Sheet1"), "A1:I3").forEach(str -> {for (String item : str) {log.info(item);}});
 
-                    prevDepth = curDepth;
+//            log.info("Sheet3: -------------------------------");
+//            reader.readTextValue(reader.getSheet("Sheet3"), "A1:A5").forEach(str -> {for (String item : str) {log.info(item);}});
+//            reader.readData(sheet, 0, 0, 2, 7);
 
-                    log.info(node);
-                }
+//            reader.readTextValue(sheet, "A1:I3").forEach(str -> {for (String item : str) {log.info(item);}});
+//            end = System.currentTimeMillis();
+//            log.info("xlsx {}ms", end - start);
 
-                //                for (int i = 0, len = lstIndex.size(); i < len; i++) {
-                //                    int[] index = lstIndex.get(i);
-                //                    curDepth = index[0];
-                //                    tagName = vn.toString(index[1]);
-                //
-                //                    if (curDepth == 0) {
-                //                        // root
-                //                        log.info("start root");
-                //                        node = new XmlNode(parent, tagName, getAttributes(vn, lstIndex, i));
-                //                        root = node;
-                //                        curNode = node;
-                //                    } else if (prevDepth < curDepth) {
-                //                        log.info("start element");
-                //                        parent = curNode;
-                //                        node = new XmlNode(parent, tagName, getAttributes(vn, lstIndex, i));
-                //                        curNode = node;
-                //                    } else if (prevDepth == curDepth) {
-                //                        log.info("start element");
-                //                        node = new XmlNode(parent, tagName, getAttributes(vn, lstIndex, i));
-                //                        curNode = node;
-                //                    } else if (prevDepth > curDepth) {
-                //                        log.info("end element");
-                //                        parent = parent.getParent();
-                //                    }
-                //
-                //                    log.info("Element name ==> {} {} {} ", curDepth, index[1], tagName);
-                //
-                //                    int t = index[2];
-                //                    if (t != -1) {
-                //                        String value = vn.toNormalizedString(t).trim();
-                //                        log.info("Text content ==> {} {}", t, value);
-                //                        curNode.setValue(value);
-                //                    }
-                //
-                //                    prevDepth = curDepth;
-                //                    prevIndex = index;
-                //                }
-                //
-                //                log.info(vn.toString(19));
 
-            } catch (Exception e) {
-                // TODO 自動生成された catch ブロック
-                e.printStackTrace();
-            }
+
+//            mapRange.put("Sheet1", Arrays.asList("B2:D3"));
+
+//            WorkbookReader reader2 = WorkbookReader.load("C:/Users/TN0Y03/Desktop/自動作成ツール/test2.xlsx", Arrays.asList("Sheet1"), 1);
+//            WorkbookReader reader2 = WorkbookReader.load("C:/Users/TN0Y03/Desktop/自動作成ツール/test2.xlsx", mapRange, 1);
+//            reader2.readTextValue(reader2.getSheet("Sheet1"), "A1:D3").forEach(str -> {for (String item : str) {log.info(item);}});
+
+
+
+            //            do {
+            //                if (parser.next() == FastXmlParser.START_TAG && parser.isMatch(root)) { // root start
+            //                    processStudentElements(parser, students);
+            //                    parser.next(); // root end
+            //                }
+            //                nextEvent = parser.getNextEvent();
+            //            } while (nextEvent != FastXmlParser.END_DOCUMENT);
 
             //            log.info("({})", StringUtils.rightPad("", 4, "　"));
             //            log.info("({})", StringUtils.rightPad("あ", 4, "　"));
@@ -274,6 +224,34 @@ public class test {
                 System.out.println(line);
             }
         }
+    }
+
+    public static class Bean1 {
+
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+    }
+
+    public static class Bean2 {
+
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
     }
 
 }

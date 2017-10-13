@@ -13,12 +13,9 @@ import java.util.Properties;
 import java.util.Set;
 
 import system.exception.ApplicationException;
+import system.reader.AbstractReader;
 
-public class PropertiesReader {
-
-    protected File file;
-
-    protected Charset charset;
+public class PropertiesReader extends AbstractReader {
 
     protected boolean sort;
 
@@ -51,9 +48,8 @@ public class PropertiesReader {
         return reader;
     }
 
-    public PropertiesReader(File file, Charset charset, boolean sort) {
-        this.file = file;
-        this.charset = charset;
+    protected PropertiesReader(File file, Charset charset, boolean sort) {
+    	super(file, charset);
         this.sort = sort;
 
         if (sort) {

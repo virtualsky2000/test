@@ -27,13 +27,9 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import system.exception.ApplicationException;
-import system.logging.LogManager;
-import system.logging.Logger;
 import system.utils.FileUtils;
 
 public class XSSFWorkbookReader extends AbstractWorkbookReader {
-
-	private static final Logger log = LogManager.getLogger(XSSFWorkbookReader.class);
 
 	private SharedStringsTable sst;
 
@@ -109,8 +105,8 @@ public class XSSFWorkbookReader extends AbstractWorkbookReader {
 		return reader;
 	}
 
-	public XSSFWorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
-		init(file, lstSheetName, mapRange, userMode);
+	protected XSSFWorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
+		super(file, lstSheetName, mapRange, userMode);
 	}
 
 	public void load() {

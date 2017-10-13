@@ -29,12 +29,16 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.IOUtils;
 
 import system.exception.ApplicationException;
+import system.logging.LogManager;
+import system.logging.Logger;
 
 public abstract class AbstractWorkbookReader {
 
 	private static final Pattern pCell = Pattern.compile("^([A-Z]+)(\\d+)$");
 
 	private static final Pattern pRange = Pattern.compile("^(([A-Z]+)(\\d+)):(([A-Z]+)(\\d+))$");
+
+	protected Logger log;
 
 	protected Workbook workbook;
 
@@ -427,7 +431,14 @@ public abstract class AbstractWorkbookReader {
 		return false;
 	}
 
-	protected void init(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
+	protected AbstractWorkbookReader() {
+        if (log == null) {
+        	log = LogManager.getLogger(this.getClass());
+        }
+	}
+
+	protected AbstractWorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
+		this();
 		this.file = file;
 		this.userMode = userMode;
 		this.lstSheetName = lstSheetName;

@@ -5,7 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+
+import system.utils.ClassUtils;
 
 public class WicketUtils {
 
@@ -16,8 +19,8 @@ public class WicketUtils {
             if (component.getId().equals(id)) {
                 return component;
             }
-            if (component instanceof WebMarkupContainer) {
-                component = findComponent((WebMarkupContainer) component, id);
+            if (component instanceof MarkupContainer) {
+                component = findComponent((MarkupContainer) component, id);
                 if (component != null) {
                     return component;
                 }
@@ -28,17 +31,22 @@ public class WicketUtils {
         return null;
     }
 
-    public static Component findComponent(WebMarkupContainer parent, String id) {
+    public static Component findComponent(MarkupContainer parent, String id) {
         return findComponent(parent.iterator(), id);
     }
 
-    public static <T> List<T> getChilds(WebMarkupContainer parent, Class<T> clazz) {
+//    public static <T> List<T> getChilds(String parentId, Class<T> clazz) {
+//    	WebMarkupContainer parent = findComponent(parentId);
+//        return getChilds(parent, clazz);
+//    }
+
+    public static <T> List<T> getChilds(MarkupContainer parent, Class<T> clazz) {
         List<T> lstComponent = new ArrayList<T>();
         Iterator<Component> iterator = parent.iterator();
 
         while (iterator.hasNext()) {
             Component component = iterator.next();
-            if (isExtend(clazz, component.getClass())) {
+            if (ClassUtils.isExtend(clazz, component.getClass())) {
                 lstComponent.add(clazz.cast(component));
             } else if (component instanceof WebMarkupContainer) {
                 List<T> subComponents = getChilds((WebMarkupContainer) component, clazz);
@@ -49,17 +57,6 @@ public class WicketUtils {
         }
 
         return lstComponent;
-    }
-
-    private static boolean isExtend(Class<?> A, Class<?> B) {
-        do {
-            if (B.equals(A)) {
-                return true;
-            }
-            B = B.getSuperclass();
-        } while (!B.equals(Object.class));
-
-        return false;
     }
 
 }

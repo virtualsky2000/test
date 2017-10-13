@@ -12,17 +12,10 @@ import com.ximpleware.VTDGen;
 import com.ximpleware.VTDNav;
 
 import system.exception.ApplicationException;
-import system.logging.LogManager;
-import system.logging.Logger;
+import system.reader.AbstractReader;
 import system.utils.FileUtils;
 
-public class VtdXmlReader {
-
-    private static final Logger log = LogManager.getLogger(VtdXmlReader.class);
-
-    protected File file;
-
-    protected Charset charset;
+public class VtdXmlReader extends AbstractReader {
 
     private XmlNode root;
 
@@ -41,9 +34,8 @@ public class VtdXmlReader {
         return reader;
     }
 
-    public VtdXmlReader(File file, Charset charset) {
-        this.file = file;
-        this.charset = charset;
+    protected VtdXmlReader(File file, Charset charset) {
+    	super(file, charset);
     }
 
     public void load() {

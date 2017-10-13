@@ -36,7 +36,7 @@ public class ApplicationException extends RuntimeException {
 
     private static String getMsg() {
         StackTraceElement[] st = Thread.currentThread().getStackTrace();
-        for (int i = 3; i < st.length; i++) {
+        for (int i = 3, len = st.length; i < len; i++) {
             StackTraceElement element = st[i];
             String methodName = element.getMethodName();
             if (!"<init>".equals(methodName)) {

@@ -21,6 +21,11 @@ public class ClassUtils {
         return loader.getResource(name);
     }
 
+    @SuppressWarnings("unchecked")
+	public static <T> T cast(Object obj) {
+        return (T) obj;
+    }
+
     static {
         loader = ClassUtils.class.getClassLoader();
     }

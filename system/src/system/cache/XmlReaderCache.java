@@ -26,19 +26,19 @@ public class XmlReaderCache extends XmlReader {
     public static XmlReaderCache load(File file, Charset charset) {
         String fileName = file.getAbsolutePath();
 
-        if (!mapCache.containsKey(fileName)) {
+        if (mapCache.containsKey(fileName)) {
+            return mapCache.get(fileName);
+        } else {
             XmlReaderCache cache = new XmlReaderCache(file, charset);
             cache.load();
 
             mapCache.put(fileName, cache);
 
             return cache;
-        } else {
-            return mapCache.get(fileName);
         }
     }
 
-    public XmlReaderCache(File file, Charset charset) {
+    protected XmlReaderCache(File file, Charset charset) {
         super(file, charset);
     }
 

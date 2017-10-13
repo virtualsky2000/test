@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,220 +16,212 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import system.exception.ApplicationException;
-import system.logging.LogManager;
-import system.logging.Logger;
+import system.reader.AbstractReader;
 import system.utils.FileUtils;
 
-public class XmlStreamReader {
+public class XmlStreamReader extends AbstractReader {
 
-    private static final Logger log = LogManager.getLogger(XmlStreamReader.class);
+	private static final XMLInputFactory factory = XMLInputFactory.newInstance();
 
-    private static final XMLInputFactory factory = XMLInputFactory.newInstance();
+	protected XmlNode root;
 
-    protected File file;
+	private XmlNode parent;
 
-    protected Charset charset;
+	private String value;
 
-    protected XmlNode root;
+	private String comment;
 
-    private XmlNode parent;
+	public static XmlStreamReader load(String fileName) {
+		return load(FileUtils.getFile(fileName), Charset.defaultCharset());
+	}
 
-    private String value;
+	public static XmlStreamReader load(String fileName, Charset charset) {
+		return load(FileUtils.getFile(fileName), charset);
+	}
 
-    private String comment;
+	public static XmlStreamReader load(File file, Charset charset) {
+		XmlStreamReader reader = new XmlStreamReader(file, charset);
+		reader.load();
 
-    public static XmlStreamReader load(String fileName) {
-        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8);
-    }
+		return reader;
+	}
 
-    public static XmlStreamReader load(String fileName, Charset charset) {
-        return load(FileUtils.getFile(fileName), charset);
-    }
+	protected XmlStreamReader(File file, Charset charset) {
+    	super(file, charset);
+	}
 
-    public static XmlStreamReader load(File file, Charset charset) {
-        XmlStreamReader reader = new XmlStreamReader(file, charset);
-        reader.load();
+	public void load() {
+		load((StreamFilter) null);
+	}
 
-        return reader;
-    }
+	public void load(StreamFilter filter) {
+		try {
+			InputStreamReader sr = new InputStreamReader(new FileInputStream(file), charset);
+			XMLStreamReader reader = factory.createXMLStreamReader(sr);
 
-    public XmlStreamReader(File file, Charset charset) {
-        this.file = file;
-        this.charset = charset;
-    }
+			if (filter != null) {
+				reader = factory.createFilteredReader(reader, filter);
+			}
 
-    public void load() {
-        load((StreamFilter) null);
-    }
+			while (reader.hasNext()) {
+				loadStream(reader);
+				reader.next();
+			}
 
-    public void load(StreamFilter filter) {
-        try {
-            InputStreamReader sr = new InputStreamReader(new FileInputStream(file), charset);
-            XMLStreamReader reader = factory.createXMLStreamReader(sr);
+			reader.close();
+		} catch (FileNotFoundException | XMLStreamException e) {
+			throw new ApplicationException("Xmlファイル「" + file.getAbsolutePath() + "」読込が失敗しました。", e);
+		}
+	}
 
-            if (filter != null) {
-                reader = factory.createFilteredReader(reader, filter);
-            }
+	protected void loadStream(XMLStreamReader reader) {
+		switch (reader.getEventType()) {
+		case XMLStreamConstants.START_ELEMENT:
+			startElement(reader);
+			break;
+		case XMLStreamConstants.END_ELEMENT:
+			endElement(reader);
+			break;
+		case XMLStreamConstants.PROCESSING_INSTRUCTION:
+			processingInstruction(reader);
+			break;
+		case XMLStreamConstants.CHARACTERS:
+			characters(reader);
+			break;
+		case XMLStreamConstants.COMMENT:
+			comment(reader);
+			break;
+		case XMLStreamConstants.SPACE:
+			space(reader);
+			break;
+		case XMLStreamConstants.START_DOCUMENT:
+			startDocument(reader);
+			break;
+		case XMLStreamConstants.END_DOCUMENT:
+			endDocument(reader);
+			break;
+		case XMLStreamConstants.ENTITY_REFERENCE:
+			entityReference(reader);
+			break;
+		case XMLStreamConstants.ATTRIBUTE:
+			attribute(reader);
+			break;
+		case XMLStreamConstants.DTD:
+			dtd(reader);
+			break;
+		case XMLStreamConstants.CDATA:
+			cdata(reader);
+			break;
+		case XMLStreamConstants.NAMESPACE:
+			namespace(reader);
+			break;
+		case XMLStreamConstants.NOTATION_DECLARATION:
+			notationDeclaration(reader);
+			break;
+		case XMLStreamConstants.ENTITY_DECLARATION:
+			entityDeclaration(reader);
+			break;
+		}
+	}
 
-            while (reader.hasNext()) {
-                loadStream(reader);
-                reader.next();
-            }
+	protected void startDocument(XMLStreamReader reader) {
+		parent = null;
+		comment = "";
+	}
 
-            reader.close();
-        } catch (FileNotFoundException | XMLStreamException e) {
-            throw new ApplicationException("Xmlファイル「" + file.getAbsolutePath() + "」読込が失敗しました。", e);
-        }
-    }
+	protected void endDocument(XMLStreamReader reader) {
 
-    protected void loadStream(XMLStreamReader reader) {
-        switch (reader.getEventType()) {
-        case XMLStreamConstants.START_ELEMENT:
-            startElement(reader);
-            break;
-        case XMLStreamConstants.END_ELEMENT:
-            endElement(reader);
-            break;
-        case XMLStreamConstants.PROCESSING_INSTRUCTION:
-            processingInstruction(reader);
-            break;
-        case XMLStreamConstants.CHARACTERS:
-            characters(reader);
-            break;
-        case XMLStreamConstants.COMMENT:
-            comment(reader);
-            break;
-        case XMLStreamConstants.SPACE:
-            space(reader);
-            break;
-        case XMLStreamConstants.START_DOCUMENT:
-            startDocument(reader);
-            break;
-        case XMLStreamConstants.END_DOCUMENT:
-            endDocument(reader);
-            break;
-        case XMLStreamConstants.ENTITY_REFERENCE:
-            entityReference(reader);
-            break;
-        case XMLStreamConstants.ATTRIBUTE:
-            attribute(reader);
-            break;
-        case XMLStreamConstants.DTD:
-            dtd(reader);
-            break;
-        case XMLStreamConstants.CDATA:
-            cdata(reader);
-            break;
-        case XMLStreamConstants.NAMESPACE:
-            namespace(reader);
-            break;
-        case XMLStreamConstants.NOTATION_DECLARATION:
-            notationDeclaration(reader);
-            break;
-        case XMLStreamConstants.ENTITY_DECLARATION:
-            entityDeclaration(reader);
-            break;
-        }
-    }
+	}
 
-    protected void startDocument(XMLStreamReader reader) {
-        parent = null;
-        comment = "";
-    }
+	protected void startElement(String name, List<XmlAttribute> lstAttribute, Location location) {
+		XmlNode node = new XmlNode(parent, name, lstAttribute);
+		node.setLineNumber(location.getLineNumber());
+		node.setColumnNumber(location.getColumnNumber());
+		node.setSystemId(location.getSystemId());
+		node.setPublicId(location.getPublicId());
 
-    protected void endDocument(XMLStreamReader reader) {
+		if (root == null) {
+			root = node;
+		}
 
-    }
+		parent = node;
+		value = "";
+	}
 
-    protected void startElement(String name, List<XmlAttribute> lstAttribute, Location location) {
-        XmlNode node = new XmlNode(parent, name, lstAttribute);
-        node.setLineNumber(location.getLineNumber());
-        node.setColumnNumber(location.getColumnNumber());
-        node.setSystemId(location.getSystemId());
-        node.setPublicId(location.getPublicId());
+	protected void startElement(XMLStreamReader reader) {
+		List<XmlAttribute> lstAttribute = null;
+		int len = reader.getAttributeCount();
+		if (len > 0) {
+			lstAttribute = new ArrayList<>(len);
+			for (int i = 0; i < len; i++) {
+				lstAttribute.add(new XmlAttribute(reader.getAttributeLocalName(i), reader.getAttributeValue(i)));
+			}
+		}
 
-        if (root == null) {
-            root = node;
-        }
+		startElement(reader.getLocalName(), lstAttribute, reader.getLocation());
+	}
 
-        parent = node;
-        value = "";
-    }
+	protected void endElement(XMLStreamReader reader) {
+		parent.setValue(value);
+		parent = parent.getParent();
+		comment = "";
+	}
 
-    protected void startElement(XMLStreamReader reader) {
-        List<XmlAttribute> lstAttribute = null;
-        int len = reader.getAttributeCount();
-        if (len > 0) {
-            lstAttribute = new ArrayList<>(len);
-            for (int i = 0; i < len; i++) {
-                lstAttribute.add(new XmlAttribute(reader.getAttributeLocalName(i), reader.getAttributeValue(i)));
-            }
-        }
+	protected void processingInstruction(XMLStreamReader reader) {
 
-        startElement(reader.getLocalName(), lstAttribute, reader.getLocation());
-    }
+	}
 
-    protected void endElement(XMLStreamReader reader) {
-        parent.setValue(value);
-        parent = parent.getParent();
-        comment = "";
-    }
+	protected void characters(XMLStreamReader reader) {
+		value = new String(reader.getTextCharacters(), reader.getTextStart(), reader.getTextLength());
+	}
 
-    protected void processingInstruction(XMLStreamReader reader) {
+	protected void comment(XMLStreamReader reader) {
+		comment = reader.getText().trim();
+		log.debug("comment: {}", comment);
+	}
 
-    }
+	protected void space(XMLStreamReader reader) {
 
-    protected void characters(XMLStreamReader reader) {
-        value = new String(reader.getTextCharacters(), reader.getTextStart(), reader.getTextLength());
-    }
+	}
 
-    protected void comment(XMLStreamReader reader) {
-        comment = reader.getText().trim();
-        log.debug("comment: {}", comment);
-    }
+	protected void entityReference(XMLStreamReader reader) {
 
-    protected void space(XMLStreamReader reader) {
+	}
 
-    }
+	protected void attribute(XMLStreamReader reader) {
 
-    protected void entityReference(XMLStreamReader reader) {
+	}
 
-    }
+	protected void dtd(XMLStreamReader reader) {
 
-    protected void attribute(XMLStreamReader reader) {
+	}
 
-    }
+	protected void cdata(XMLStreamReader reader) {
 
-    protected void dtd(XMLStreamReader reader) {
+	}
 
-    }
+	protected void namespace(XMLStreamReader reader) {
+		log.info(reader.getNamespaceCount());
+	}
 
-    protected void cdata(XMLStreamReader reader) {
+	protected void notationDeclaration(XMLStreamReader reader) {
 
-    }
+	}
 
-    protected void namespace(XMLStreamReader reader) {
-        log.info(reader.getNamespaceCount());
-    }
+	protected void entityDeclaration(XMLStreamReader reader) {
 
-    protected void notationDeclaration(XMLStreamReader reader) {
+	}
 
-    }
+	public XmlNode getRootNode() {
+		return this.root;
+	}
 
-    protected void entityDeclaration(XMLStreamReader reader) {
+	public String getComment() {
+		return comment;
+	}
 
-    }
-
-    public XmlNode getRootNode() {
-        return this.root;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
 }

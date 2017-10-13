@@ -29,13 +29,9 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellType;
 
 import system.exception.ApplicationException;
-import system.logging.LogManager;
-import system.logging.Logger;
 import system.utils.FileUtils;
 
 public class HSSFWorkbookReader extends AbstractWorkbookReader {
-
-	private static final Logger log = LogManager.getLogger(HSSFWorkbookReader.class);
 
 	private SSTRecord sstRecord;
 
@@ -111,8 +107,8 @@ public class HSSFWorkbookReader extends AbstractWorkbookReader {
 		return reader;
 	}
 
-	public HSSFWorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
-		init(file, lstSheetName, mapRange, userMode);
+	protected HSSFWorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
+		super(file, lstSheetName, mapRange, userMode);
 	}
 
 	public void load() {

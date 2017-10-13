@@ -37,19 +37,19 @@ public class PropertiesReaderCache extends PropertiesReader  {
     public static PropertiesReaderCache load(File file, Charset charset, boolean sort) {
         String fileName = file.getAbsolutePath();
 
-        if (!mapCache.containsKey(fileName)) {
+        if (mapCache.containsKey(fileName)) {
+            return mapCache.get(fileName);
+        } else {
             PropertiesReaderCache cache = new PropertiesReaderCache(file, charset, sort);
             cache.load();
 
             mapCache.put(fileName, cache);
 
             return cache;
-        } else {
-            return mapCache.get(fileName);
         }
     }
 
-    public PropertiesReaderCache(File file, Charset charset, boolean sort) {
+    protected PropertiesReaderCache(File file, Charset charset, boolean sort) {
         super(file, charset, sort);
     }
 

@@ -17,14 +17,11 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.sun.faces.facelets.compiler.UIInstructions;
 
-import system.logging.Logger;
 import system.utils.ClassUtils;
 
 public class FacesUtils {
 
     private static final Pattern p = Pattern.compile("\\{\\s*\\w+\\.(\\w+)\\s*\\}");
-
-    private static Logger logger;
 
     public static UIComponent findComponent(String id) {
         UIViewRoot root = FacesContext.getCurrentInstance().getViewRoot();

@@ -64,7 +64,8 @@ public class WorkbookReader extends AbstractWorkbookReader {
 		return reader;
 	}
 
-	public WorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
+	protected WorkbookReader(File file, List<String> lstSheetName, Map<String, List<String>> mapRange, int userMode) {
+		super();
 		this.file = file;
 		this.lstSheetName = lstSheetName;
 		this.mapRange = mapRange;

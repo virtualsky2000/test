@@ -22,6 +22,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import system.exception.ApplicationException;
 import system.logging.LogManager;
 import system.logging.Logger;
+import system.utils.ClassUtils;
 import system.validator.ValidatorUtils;
 import system.web.PageInfo;
 
@@ -47,12 +48,12 @@ public abstract class AbstractManagedBean {
 
     private String userId;
 
-    private Logger logger;
+    private Logger log;
 
     @PostConstruct
     private void postConstruct() {
-        if (logger == null) {
-            logger = LogManager.getLogger(this.getClass());
+        if (log == null) {
+        	log = LogManager.getLogger(this.getClass());
         }
         fc = FacesContext.getCurrentInstance();
         exContext = fc.getExternalContext();
@@ -151,13 +152,12 @@ public abstract class AbstractManagedBean {
 
     protected void setFormData() {
         // copyMap(lstPageInfo.get(pageIndex - 1).getFormData());
-
-        copyMap(cast(flash.get("formData")));
+        copyMap(ClassUtils.cast(flash.get("formData")));
     }
 
     protected void restoreFormData() {
         // Map<String, Object> mapFormData = pageInfo.getFormData();
-        Map<String, Object> mapFormData = cast(flash.get("formData"));
+        Map<String, Object> mapFormData = ClassUtils.cast(flash.get("formData"));
         if (mapFormData != null) {
             copyMap(mapFormData);
         }
@@ -294,11 +294,6 @@ public abstract class AbstractManagedBean {
         }
 
         return userId;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T> T cast(Object obj) {
-        return (T) obj;
     }
 
 }

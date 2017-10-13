@@ -2,26 +2,50 @@
 <classpath>
 	<classpathentry excluding="test/AspectLogging.aj" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1501461272448/source/commons-lang-2.6-sources-1501463524049.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.10.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections4-4.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/poi-3.15.jar"/>
-	<classpathentry kind="lib" path="lib/poi-ooxml-3.15.jar"/>
 	<classpathentry kind="lib" path="lib/bean-validator.jar"/>
 	<classpathentry kind="lib" path="lib/javax.el.jar"/>
-	<classpathentry kind="lib" path="lib/commons-beanutils-1.9.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-beanutils-1.9.2.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1500336252255/source/commons-beanutils-1.9.2-sources-1500337891959.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-core-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-api-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-api-2.2.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1505953711409/source/log4j-api-2.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.7.23.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.23.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1505953711409/source/slf4j-api-1.7.23-sources.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-1.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2-api-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-1.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-3.15.jar"/>
 	<classpathentry kind="lib" path="lib/xmlbeans-2.6.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.5.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1505869428776/source/commons-io-2.5-sources.jar"/>
 	<classpathentry kind="lib" path="lib/vtd-xml_2_13_1.jar"/>
+	<classpathentry kind="lib" path="D:/glassfish-4.1/glassfish/modules/javax.faces.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1500535744100/source/javax.faces-2.2.7-sources.jar"/>
+	<classpathentry kind="lib" path="lib/javax.persistence.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-core-7.8.0.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1507594179977/source/wicket-core-7.8.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-auth-roles-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-bean-validation-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-cdi-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-extensions-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-guice-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-ioc-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-jmx-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-js-tests-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-native-websocket-core-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-native-websocket-javax-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-request-7.8.0.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1507594179977/source/wicket-request-7.8.0-sources-1507597435967.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-user-guide-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-util-7.8.0.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1502928179930/source/wicket-util-7.8.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/wicket-velocity-7.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/woodstox-core-5.0.3.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1504224283361/source/woodstox-core-5.0.3-sources.jar"/>
+	<classpathentry kind="lib" path="lib/woodstox-core-asl-4.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/stax2-api-4.0.0.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1504224283361/source/stax2-api-4.0.0-sources-1504234525385.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.16.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1506386179812/source/poi-3.16-sources-1506388003724.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-3.16.jar" sourcepath="C:/Users/TN0Y03/AppData/Local/Temp/.org.sf.feeling.decompiler1506386179812/source/poi-ooxml-3.16-sources-1506391873751.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-3.16.jar"/>
+	<classpathentry kind="lib" path="lib/htmlunit-driver-2.24.jar"/>
+	<classpathentry kind="lib" path="lib/htmlunit-2.24.jar"/>
+	<classpathentry kind="lib" path="lib/client-combined-3.3.1-nodeps.jar"/>
+	<classpathentry kind="lib" path="lib/guava-21.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

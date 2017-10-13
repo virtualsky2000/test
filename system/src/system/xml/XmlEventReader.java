@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,223 +30,215 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import system.exception.ApplicationException;
-import system.logging.LogManager;
-import system.logging.Logger;
+import system.reader.AbstractReader;
 import system.utils.FileUtils;
 
-public class XmlEventReader {
+public class XmlEventReader extends AbstractReader {
 
-    private static final Logger log = LogManager.getLogger(XmlEventReader.class);
+	private static final XMLInputFactory factory = XMLInputFactory.newInstance();
 
-    private static final XMLInputFactory factory = XMLInputFactory.newInstance();
+	protected XmlNode root;
 
-    protected File file;
+	private XmlNode parent;
 
-    protected Charset charset;
+	private String value;
 
-    protected XmlNode root;
+	private String comment;
 
-    private XmlNode parent;
+	public static XmlEventReader load(String fileName) {
+		return load(FileUtils.getFile(fileName), Charset.defaultCharset());
+	}
 
-    private String value;
+	public static XmlEventReader load(String fileName, Charset charset) {
+		return load(FileUtils.getFile(fileName), charset);
+	}
 
-    private String comment;
+	public static XmlEventReader load(File file, Charset charset) {
+		XmlEventReader reader = new XmlEventReader(file, charset);
+		reader.load();
 
-    public static XmlEventReader load(String fileName) {
-        return load(FileUtils.getFile(fileName), StandardCharsets.UTF_8);
-    }
+		return reader;
+	}
 
-    public static XmlEventReader load(String fileName, Charset charset) {
-        return load(FileUtils.getFile(fileName), charset);
-    }
+	protected XmlEventReader(File file, Charset charset) {
+		super(file, charset);
+	}
 
-    public static XmlEventReader load(File file, Charset charset) {
-        XmlEventReader reader = new XmlEventReader(file, charset);
-        reader.load();
+	public void load() {
+		load((EventFilter) null);
+	}
 
-        return reader;
-    }
+	public void load(EventFilter filter) {
+		try {
+			InputStreamReader sr = new InputStreamReader(new FileInputStream(file), charset);
+			XMLEventReader reader = factory.createXMLEventReader(sr);
+			if (filter != null) {
+				reader = factory.createFilteredReader(reader, filter);
+			}
 
-    public XmlEventReader(File file, Charset charset) {
-        this.file = file;
-        this.charset = charset;
-    }
+			while (reader.hasNext()) {
+				XMLEvent event = reader.nextEvent();
+				loadEvent(event);
+			}
 
-    public void load() {
-        load((EventFilter) null);
-    }
+			reader.close();
+		} catch (FileNotFoundException | XMLStreamException e) {
+			throw new ApplicationException("Xmlファイル「" + file.getAbsolutePath() + "」読込が失敗しました。", e);
+		}
+	}
 
-    public void load(EventFilter filter) {
-        try {
-            InputStreamReader sr = new InputStreamReader(new FileInputStream(file), charset);
-            XMLEventReader reader = factory.createXMLEventReader(sr);
-            if (filter != null) {
-                reader = factory.createFilteredReader(reader, filter);
-            }
+	protected void loadEvent(XMLEvent event) {
+		switch (event.getEventType()) {
+		case XMLEvent.START_ELEMENT:
+			startElement((StartElement) event);
+			break;
+		case XMLEvent.END_ELEMENT:
+			endElement((EndElement) event);
+			break;
+		case XMLEvent.PROCESSING_INSTRUCTION:
+			processingInstruction((ProcessingInstruction) event);
+			break;
+		case XMLEvent.CHARACTERS:
+			characters((Characters) event);
+			break;
+		case XMLEvent.COMMENT:
+			comment((Comment) event);
+			break;
+		case XMLEvent.SPACE:
+			space(event);
+			break;
+		case XMLEvent.START_DOCUMENT:
+			startDocument((StartDocument) event);
+			break;
+		case XMLEvent.END_DOCUMENT:
+			endDocument((EndDocument) event);
+			break;
+		case XMLEvent.ENTITY_REFERENCE:
+			entityReference((EntityReference) event);
+			break;
+		case XMLEvent.ATTRIBUTE:
+			attribute((Attribute) event);
+			break;
+		case XMLEvent.DTD:
+			dtd((DTD) event);
+			break;
+		case XMLEvent.CDATA:
+			cdata(event);
+			break;
+		case XMLEvent.NAMESPACE:
+			namespace((Namespace) event);
+			break;
+		case XMLEvent.NOTATION_DECLARATION:
+			notationDeclaration((NotationDeclaration) event);
+			break;
+		case XMLEvent.ENTITY_DECLARATION:
+			entityDeclaration((EntityDeclaration) event);
+			break;
+		}
+	}
 
-            while (reader.hasNext()) {
-                XMLEvent event = reader.nextEvent();
-                loadEvent(event);
-            }
+	protected void startDocument(StartDocument element) {
+		parent = null;
+		comment = "";
+	}
 
-            reader.close();
-        } catch (FileNotFoundException | XMLStreamException e) {
-            throw new ApplicationException("Xmlファイル「" + file.getAbsolutePath() + "」読込が失敗しました。", e);
-        }
-    }
+	protected void endDocument(EndDocument event) {
 
-    protected void loadEvent(XMLEvent event) {
-        switch (event.getEventType()) {
-        case XMLEvent.START_ELEMENT:
-            startElement((StartElement) event);
-            break;
-        case XMLEvent.END_ELEMENT:
-            endElement((EndElement) event);
-            break;
-        case XMLEvent.PROCESSING_INSTRUCTION:
-            processingInstruction((ProcessingInstruction) event);
-            break;
-        case XMLEvent.CHARACTERS:
-            characters((Characters) event);
-            break;
-        case XMLEvent.COMMENT:
-            comment((Comment) event);
-            break;
-        case XMLEvent.SPACE:
-            space(event);
-            break;
-        case XMLEvent.START_DOCUMENT:
-            startDocument((StartDocument) event);
-            break;
-        case XMLEvent.END_DOCUMENT:
-            endDocument((EndDocument) event);
-            break;
-        case XMLEvent.ENTITY_REFERENCE:
-            entityReference((EntityReference) event);
-            break;
-        case XMLEvent.ATTRIBUTE:
-            attribute((Attribute) event);
-            break;
-        case XMLEvent.DTD:
-            dtd((DTD) event);
-            break;
-        case XMLEvent.CDATA:
-            cdata(event);
-            break;
-        case XMLEvent.NAMESPACE:
-            namespace((Namespace) event);
-            break;
-        case XMLEvent.NOTATION_DECLARATION:
-            notationDeclaration((NotationDeclaration) event);
-            break;
-        case XMLEvent.ENTITY_DECLARATION:
-            entityDeclaration((EntityDeclaration) event);
-            break;
-        }
-    }
+	}
 
-    protected void startDocument(StartDocument element) {
-        parent = null;
-        comment = "";
-    }
+	protected void startElement(String name, List<XmlAttribute> lstAttribute, Location location) {
+		XmlNode node = new XmlNode(parent, name, lstAttribute);
+		node.setLineNumber(location.getLineNumber());
+		node.setColumnNumber(location.getColumnNumber());
+		node.setSystemId(location.getSystemId());
+		node.setPublicId(location.getPublicId());
 
-    protected void endDocument(EndDocument event) {
+		if (root == null) {
+			root = node;
+		}
 
-    }
+		parent = node;
+		value = "";
+	}
 
-    protected void startElement(String name, List<XmlAttribute> lstAttribute, Location location) {
-        XmlNode node = new XmlNode(parent, name, lstAttribute);
-        node.setLineNumber(location.getLineNumber());
-        node.setColumnNumber(location.getColumnNumber());
-        node.setSystemId(location.getSystemId());
-        node.setPublicId(location.getPublicId());
+	protected void startElement(StartElement element) {
+		@SuppressWarnings("unchecked")
+		Iterator<Attribute> iterator = (Iterator<Attribute>) element.getAttributes();
+		List<XmlAttribute> lstAttribute = null;
 
-        if (root == null) {
-            root = node;
-        }
+		if (iterator.hasNext()) {
+			lstAttribute = new ArrayList<>();
+		}
 
-        parent = node;
-        value = "";
-    }
+		while (iterator.hasNext()) {
+			Attribute attr = iterator.next();
+			lstAttribute.add(new XmlAttribute(attr.getName().getLocalPart(), attr.getValue()));
+		}
 
-    protected void startElement(StartElement element) {
-        @SuppressWarnings("unchecked")
-        Iterator<Attribute> iterator = (Iterator<Attribute>) element.getAttributes();
-        List<XmlAttribute> lstAttribute = null;
+		startElement(element.getName().getLocalPart(), lstAttribute, element.getLocation());
+	}
 
-        if (iterator.hasNext()) {
-            lstAttribute = new ArrayList<>();
-        }
+	protected void endElement(EndElement event) {
+		parent.setValue(value);
+		parent = parent.getParent();
+		comment = "";
+	}
 
-        while (iterator.hasNext()) {
-            Attribute attr = iterator.next();
-            lstAttribute.add(new XmlAttribute(attr.getName().getLocalPart(), attr.getValue()));
-        }
+	protected void processingInstruction(ProcessingInstruction event) {
 
-        startElement(element.getName().getLocalPart(), lstAttribute, element.getLocation());
-    }
+	}
 
-    protected void endElement(EndElement event) {
-        parent.setValue(value);
-        parent = parent.getParent();
-        comment = "";
-    }
+	protected void characters(Characters event) {
+		value = event.getData();
+	}
 
-    protected void processingInstruction(ProcessingInstruction event) {
+	protected void comment(Comment event) {
+		comment = event.getText().trim();
+		log.debug("comment: {}", comment);
+	}
 
-    }
+	protected void space(XMLEvent event) {
 
-    protected void characters(Characters event) {
-        value = event.getData();
-    }
+	}
 
-    protected void comment(Comment event) {
-        comment = event.getText().trim();
-        log.debug("comment: {}", comment);
-    }
+	protected void cdata(XMLEvent event) {
 
-    protected void space(XMLEvent event) {
+	}
 
-    }
+	protected void entityReference(EntityReference event) {
 
-    protected void cdata(XMLEvent event) {
+	}
 
-    }
+	protected void attribute(Attribute event) {
 
-    protected void entityReference(EntityReference event) {
+	}
 
-    }
+	protected void dtd(DTD event) {
 
-    protected void attribute(Attribute event) {
+	}
 
-    }
+	protected void namespace(Namespace event) {
 
-    protected void dtd(DTD event) {
+	}
 
-    }
+	protected void notationDeclaration(NotationDeclaration event) {
 
-    protected void namespace(Namespace event) {
+	}
 
-    }
+	protected void entityDeclaration(EntityDeclaration event) {
 
-    protected void notationDeclaration(NotationDeclaration event) {
+	}
 
-    }
+	public XmlNode getRootNode() {
+		return this.root;
+	}
 
-    protected void entityDeclaration(EntityDeclaration event) {
+	public String getComment() {
+		return comment;
+	}
 
-    }
-
-    public XmlNode getRootNode() {
-        return this.root;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
 }
